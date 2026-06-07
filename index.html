@@ -1,661 +1,519 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>BLOSSOMING</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Our Story · 我们的故事</title>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Serif+SC:wght@200;400;700&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400;600&family=Inter:wght@200;300;400;500&display=swap');
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;scrollbar-width:none}
-html::-webkit-scrollbar{display:none}
-body{background:#000;color:#fff;font-family:'Inter','Noto Serif SC',sans-serif;overflow-x:hidden;cursor:default}
-::selection{background:rgba(255,100,150,0.3)}
+/* ==================== RESET ==================== */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:#0a0a0a;color:#e8e0d8;font-family:'Inter','Noto Serif SC',sans-serif;overflow-x:hidden;cursor:none}
+::selection{background:rgba(200,160,140,.3);color:#fff}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:#0a0a0a}
+::-webkit-scrollbar-thumb{background:rgba(200,160,140,.2);border-radius:2px}
 
-/* ── Loading ─────────────────── */
-#loader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1s,visibility 1s}
-#loader.hide{opacity:0;visibility:hidden;pointer-events:none}
-#loader .l-icon{font-size:42px;margin-bottom:36px;opacity:0.8}
-#loader .l-title{font-size:11px;letter-spacing:8px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:48px}
-#loader .l-bar{width:200px;height:1px;background:rgba(255,255,255,0.08);overflow:hidden}
-#loader .l-fill{width:0;height:100%;background:rgba(255,120,170,0.5);transition:width 0.3s}
-#loader .l-pct{margin-top:14px;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:4px}
-#loader .l-enter{margin-top:48px;font-size:10px;letter-spacing:5px;color:rgba(255,255,255,0.25);text-transform:uppercase;padding:10px 28px;border:1px solid rgba(255,255,255,0.08);background:transparent;cursor:pointer;transition:all 0.4s;display:none;font-family:inherit}
-#loader .l-enter.show{display:block}
-#loader .l-enter:hover{border-color:rgba(255,120,170,0.3);color:rgba(255,255,255,0.5)}
+/* ==================== CUSTOM CURSOR ==================== */
+.cur-ring{position:fixed;width:28px;height:28px;border:1px solid rgba(200,160,140,.2);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .4s cubic-bezier(.16,1,.3,1),height .4s,border-color .4s,opacity .3s;mix-blend-mode:difference;opacity:0}
+.cur-ring.vis{opacity:1}
+.cur-ring.hover{width:56px;height:56px;border-color:rgba(200,160,140,.5)}
+.cur-dot{position:fixed;width:4px;height:4px;background:rgba(200,160,140,.6);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);opacity:0;transition:opacity .3s}
+.cur-dot.vis{opacity:1}
 
-/* ── Canvas ──────────────────── */
-#c{position:fixed;inset:0;z-index:1;display:block}
+/* ==================== PARTICLE CANVAS ==================== */
+#particles{position:fixed;inset:0;z-index:1;pointer-events:none}
 
-/* ── BGM ─────────────────────── */
-#bgm-btn{position:fixed;bottom:30px;right:30px;z-index:50;width:36px;height:36px;border:1px solid rgba(255,255,255,0.08);border-radius:50%;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:all 0.4s}
-#bgm-btn.show{opacity:1}
-#bgm-btn:hover{border-color:rgba(255,120,170,0.3)}
-#bgm-btn .bars{display:flex;gap:1.5px;align-items:flex-end;height:12px}
-#bgm-btn .bar{width:1.5px;background:rgba(255,120,170,0.4);border-radius:1px;animation:none}
-#bgm-btn.on .bar{animation:bz 0.7s ease-in-out infinite alternate}
-#bgm-btn .bar:nth-child(1){height:3px;animation-delay:0s}
-#bgm-btn .bar:nth-child(2){height:6px;animation-delay:0.1s}
-#bgm-btn .bar:nth-child(3){height:10px;animation-delay:0.2s}
-#bgm-btn .bar:nth-child(4){height:5px;animation-delay:0.3s}
-@keyframes bz{0%{height:2px}100%{height:12px}}
+/* ==================== PRELOADER ==================== */
+.preloader{position:fixed;inset:0;z-index:10000;background:#0a0a0a;display:flex;align-items:center;justify-content:center;transition:opacity 1.2s cubic-bezier(.16,1,.3,1)}
+.preloader.done{opacity:0;pointer-events:none}
+.preloader-text{font-family:'Playfair Display','Noto Serif SC',serif;font-size:clamp(14px,2vw,18px);color:rgba(200,160,140,.4);letter-spacing:6px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 
-/* ── Fixed UI ────────────────── */
-.ui{position:fixed;z-index:10;pointer-events:none}
-.brand{top:28px;left:32px}
-.brand .logo{font-size:24px;font-weight:600;letter-spacing:10px;color:rgba(255,255,255,0.85)}
-.brand .sub{font-size:8px;letter-spacing:4px;color:rgba(255,255,255,0.2);text-transform:uppercase;margin-top:4px}
-.status{top:28px;right:32px;text-align:right}
-.status .phase{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.3);text-transform:uppercase}
-.status .pct{font-size:20px;font-weight:200;color:rgba(255,255,255,0.5);margin-top:2px;font-variant-numeric:tabular-nums}
-.info-bl{bottom:32px;left:32px}
-.info-bl .date{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.2);text-transform:uppercase}
-.info-bl .desc{font-size:12px;color:rgba(255,255,255,0.35);margin-top:6px;max-width:260px;line-height:1.8;letter-spacing:0.5px}
-.info-br{bottom:32px;right:32px;text-align:right}
-.info-br .hint{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.15);text-transform:uppercase}
+/* ==================== INTRO ==================== */
+.intro{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;overflow:hidden}
+.intro-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(180,120,100,.06) 0%,transparent 70%);z-index:-1}
 
-/* ── Nav Dots ────────────────── */
-.nav-dots{position:fixed;right:32px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;gap:12px;pointer-events:auto}
-.nav-dot{width:6px;height:6px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:transparent;cursor:pointer;transition:all 0.4s}
-.nav-dot.active{background:rgba(255,120,170,0.6);border-color:rgba(255,120,170,0.4)}
+.intro-names{font-family:'Playfair Display','Noto Serif SC',serif;font-size:clamp(36px,8vw,72px);font-weight:200;color:rgba(232,224,216,.9);letter-spacing:clamp(6px,2vw,16px);margin-bottom:16px;overflow:hidden}
+.intro-names span{display:inline-block;opacity:0;transform:translateY(40px);animation:nameIn 1s cubic-bezier(.16,1,.3,1) forwards}
+.intro-amp{font-style:italic;color:rgba(200,160,140,.4);margin:0 8px;font-size:.7em}
 
-/* ── Center Text ─────────────── */
-.center-text{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none;text-align:center;opacity:0;transition:opacity 1s}
-.center-text.show{opacity:1}
-.center-text .ct-main{font-family:'Noto Serif SC',serif;font-size:clamp(26px,4.5vw,52px);font-weight:200;color:rgba(255,255,255,0.88);line-height:1.7;letter-spacing:4px;text-shadow:0 0 40px rgba(255,100,150,0.15)}
-.center-text .ct-sub{font-size:11px;letter-spacing:5px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:18px}
-.center-text .ct-btn{margin-top:28px;padding:10px 28px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.35);font-size:10px;letter-spacing:4px;text-transform:uppercase;cursor:pointer;pointer-events:auto;transition:all 0.4s;font-family:inherit}
-.center-text .ct-btn:hover{border-color:rgba(255,120,170,0.3);color:rgba(255,255,255,0.6)}
+.intro-sub{font-size:clamp(10px,1.2vw,13px);color:rgba(200,160,140,.25);letter-spacing:6px;text-transform:uppercase;margin-bottom:48px;opacity:0;animation:fadeUp 1.2s cubic-bezier(.16,1,.3,1) 1.5s forwards}
 
-/* ── Scroll Hint ─────────────── */
-.scroll-hint{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:10;pointer-events:none;text-align:center;animation:shFloat 2.5s ease-in-out infinite}
-.scroll-hint .sh-t{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.2);text-transform:uppercase}
-.scroll-hint .sh-l{width:1px;height:28px;background:linear-gradient(to bottom,rgba(255,255,255,0.2),transparent);margin:8px auto 0}
-@keyframes shFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+.intro-enter{padding:14px 48px;background:transparent;border:1px solid rgba(200,160,140,.12);border-radius:50px;color:rgba(200,160,140,.35);font-size:12px;letter-spacing:5px;cursor:pointer;transition:all .6s cubic-bezier(.16,1,.3,1);opacity:0;animation:fadeUp 1.2s cubic-bezier(.16,1,.3,1) 2s forwards;font-family:inherit;position:relative;overflow:hidden}
+.intro-enter::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(200,160,140,.08),transparent);opacity:0;transition:opacity .4s}
+.intro-enter:hover{border-color:rgba(200,160,140,.3);color:rgba(200,160,140,.6)}
+.intro-enter:hover::before{opacity:1}
+.intro-enter:active{transform:scale(.97)}
+.intro-enter .breathing{animation:breathing 3s ease-in-out infinite}
+@keyframes breathing{0%,100%{opacity:.35}50%{opacity:.65}}
 
-/* ── Photo Frame in 3D ───────── */
-.photo-frame{position:fixed;z-index:8;pointer-events:none;opacity:0;transition:opacity 1.2s}
-.photo-frame.show{opacity:1}
-.photo-frame img{width:100%;height:100%;object-fit:cover;border-radius:2px;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
-.photo-frame .pf-border{position:absolute;inset:-1px;border:1px solid rgba(255,255,255,0.06);border-radius:3px;pointer-events:none}
+.scroll-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fadeUp 1s cubic-bezier(.16,1,.3,1) 3s forwards}
+.scroll-hint-line{width:1px;height:40px;background:linear-gradient(to bottom,rgba(200,160,140,.3),transparent);animation:scrollLine 2s ease-in-out infinite}
+@keyframes scrollLine{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.01%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 
-/* ── Scroll Container ────────── */
-#scroll-container{position:relative;z-index:2;width:100%}
+@keyframes nameIn{to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* ==================== SECTIONS ==================== */
+.section{position:relative;z-index:10;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 20px}
+
+/* Photo Section */
+.photo-section{flex-direction:row;gap:clamp(40px,6vw,100px);padding:60px clamp(20px,5vw,80px)}
+.photo-section.reverse{flex-direction:row-reverse}
+
+.photo-frame{flex:0 0 auto;width:clamp(280px,40vw,500px);position:relative;overflow:hidden;border-radius:4px}
+.photo-frame img{width:100%;height:auto;display:block;opacity:0;transform:scale(1.08);transition:opacity 1.2s cubic-bezier(.16,1,.3,1),transform 1.8s cubic-bezier(.16,1,.3,1)}
+.photo-frame img.visible{opacity:1;transform:scale(1)}
+.photo-frame::after{content:'';position:absolute;inset:0;border:1px solid rgba(200,160,140,.06);pointer-events:none;border-radius:4px}
+.photo-frame .photo-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(200,160,140,.03),transparent);pointer-events:none;opacity:0;transition:opacity .6s}
+.photo-frame:hover .photo-overlay{opacity:1}
+
+.photo-text{flex:1;max-width:480px}
+.photo-text .section-num{font-family:'Playfair Display',serif;font-size:clamp(48px,6vw,80px);font-weight:400;color:rgba(200,160,140,.06);line-height:1;margin-bottom:16px;opacity:0;transform:translateX(-30px);transition:all 1s cubic-bezier(.16,1,.3,1)}
+.photo-text .section-num.visible{opacity:1;transform:translateX(0)}
+.photo-text h2{font-family:'Playfair Display','Noto Serif SC',serif;font-size:clamp(24px,3vw,36px);font-weight:400;color:rgba(232,224,216,.85);letter-spacing:2px;margin-bottom:20px;opacity:0;transform:translateY(20px);transition:all 1s cubic-bezier(.16,1,.3,1) .15s}
+.photo-text h2.visible{opacity:1;transform:translateY(0)}
+.photo-text p{font-size:clamp(13px,1.1vw,15px);color:rgba(200,160,140,.4);line-height:1.9;letter-spacing:.5px;opacity:0;transform:translateY(20px);transition:all 1s cubic-bezier(.16,1,.3,1) .3s}
+.photo-text p.visible{opacity:1;transform:translateY(0)}
+.photo-text .divider{width:40px;height:1px;background:rgba(200,160,140,.15);margin:24px 0;opacity:0;transition:all 1s cubic-bezier(.16,1,.3,1) .45s}
+.photo-text .divider.visible{opacity:1;width:40px}
+
+/* Gallery Section */
+.gallery-section{flex-direction:column;padding:100px 20px}
+.gallery-title{font-family:'Playfair Display','Noto Serif SC',serif;font-size:clamp(28px,4vw,48px);font-weight:200;color:rgba(232,224,216,.8);letter-spacing:4px;text-align:center;margin-bottom:60px;opacity:0;transform:translateY(30px);transition:all 1.2s cubic-bezier(.16,1,.3,1)}
+.gallery-title.visible{opacity:1;transform:translateY(0)}
+
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;max-width:1100px;width:100%}
+.gallery-item{position:relative;overflow:hidden;border-radius:4px;cursor:pointer;aspect-ratio:auto}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.16,1,.3,1),filter .8s;filter:brightness(.85)}
+.gallery-item:hover img{transform:scale(1.06);filter:brightness(1)}
+.gallery-item .gallery-caption{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);opacity:0;transform:translateY(10px);transition:all .5s cubic-bezier(.16,1,.3,1)}
+.gallery-item:hover .gallery-caption{opacity:1;transform:translateY(0)}
+.gallery-caption span{font-size:12px;color:rgba(232,224,216,.7);letter-spacing:2px}
+
+/* Lightbox */
+.lightbox{position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,.95);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .5s cubic-bezier(.16,1,.3,1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.lightbox.open{opacity:1;visibility:visible}
+.lightbox img{max-width:90vw;max-height:85vh;object-fit:contain;border-radius:4px;transform:scale(.9);transition:transform .6s cubic-bezier(.16,1,.3,1);box-shadow:0 20px 80px rgba(0,0,0,.5)}
+.lightbox.open img{transform:scale(1)}
+.lightbox-close{position:absolute;top:24px;right:24px;width:40px;height:40px;border:1px solid rgba(232,224,216,.15);border-radius:50%;background:transparent;color:rgba(232,224,216,.5);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;font-family:inherit}
+.lightbox-close:hover{border-color:rgba(232,224,216,.4);color:rgba(232,224,216,.8)}
+
+/* Ending */
+.ending{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 20px;position:relative;z-index:10}
+.ending-text{font-family:'Playfair Display','Noto Serif SC',serif;font-size:clamp(20px,3vw,32px);font-weight:200;color:rgba(232,224,216,.6);letter-spacing:3px;line-height:2;max-width:600px;opacity:0;transform:translateY(30px);transition:all 1.5s cubic-bezier(.16,1,.3,1)}
+.ending-text.visible{opacity:1;transform:translateY(0)}
+.ending-date{font-family:'Playfair Display',serif;font-size:clamp(12px,1.5vw,16px);color:rgba(200,160,140,.2);letter-spacing:6px;margin-top:40px;opacity:0;transition:all 1.5s cubic-bezier(.16,1,.3,1) .3s}
+.ending-date.visible{opacity:1}
+
+/* ==================== BGM ==================== */
+.bgm-btn{position:fixed;bottom:24px;right:24px;z-index:100;width:44px;height:44px;border:1px solid rgba(200,160,140,.1);border-radius:50%;background:rgba(10,10,10,.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .4s;opacity:0}
+.bgm-btn.show{opacity:1}
+.bgm-btn:hover{border-color:rgba(200,160,140,.3)}
+.bgm-btn svg{width:18px;height:18px;fill:none;stroke:rgba(200,160,140,.4);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.bgm-btn.playing svg{stroke:rgba(200,160,140,.7)}
+.bgm-bars{display:flex;gap:2px;align-items:flex-end;height:14px}
+.bgm-bars span{width:2px;background:rgba(200,160,140,.4);border-radius:1px;animation:none}
+.bgm-btn.playing .gm-bars span{animation:barPulse 1.2s ease-in-out infinite}
+.bgm-bars span:nth-child(1){height:4px;animation-delay:0s}
+.bgm-bars span:nth-child(2){height:8px;animation-delay:.15s}
+.bgm-bars span:nth-child(3){height:6px;animation-delay:.3s}
+.bgm-bars span:nth-child(4){height:10px;animation-delay:.45s}
+@keyframes barPulse{0%,100%{height:4px}50%{height:14px}}
+
+/* ==================== NAV PROGRESS ==================== */
+.progress{position:fixed;top:0;left:0;height:1px;background:linear-gradient(90deg,rgba(200,160,140,.3),rgba(200,160,140,.1));z-index:100;width:0;transition:width .1s}
+
+/* ==================== RESPONSIVE ==================== */
+@media(max-width:768px){
+  .cur-ring,.cur-dot{display:none!important}
+  body{cursor:auto}
+  .photo-section{flex-direction:column!important;padding:60px 20px;gap:30px}
+  .photo-frame{width:100%;max-width:400px}
+  .photo-text{max-width:100%}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .bgm-btn{bottom:16px;right:16px;width:38px;height:38px}
+}
+@media(max-width:400px){
+  .gallery-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
-<!-- Loading -->
-<div id="loader">
-  <div class="l-icon">🌸</div>
-  <div class="l-title">BLOSSOMING</div>
-  <div class="l-bar"><div class="l-fill" id="l-fill"></div></div>
-  <div class="l-pct" id="l-pct">0%</div>
-  <button class="l-enter" id="l-enter">Enter Experience</button>
+<!-- CURSOR -->
+<div class="cur-ring" id="curRing"></div>
+<div class="cur-dot" id="curDot"></div>
+
+<!-- PARTICLES -->
+<canvas id="particles"></canvas>
+
+<!-- PROGRESS -->
+<div class="progress" id="progress"></div>
+
+<!-- PRELOADER -->
+<div class="preloader" id="preloader"><div class="preloader-text">LOADING</div></div>
+
+<!-- BGM BUTTON -->
+<div class="bgm-btn" id="bgmBtn">
+  <div class="bgm-bars"><span></span><span></span><span></span><span></span></div>
 </div>
 
-<!-- BGM -->
-<button id="bgm-btn"><div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></button>
-
-<!-- Canvas -->
-<canvas id="c"></canvas>
-
-<!-- Scroll -->
-<div id="scroll-container"></div>
-
-<!-- Fixed UI -->
-<div class="ui brand">
-  <div class="logo">JYM & WTF</div>
-  <div class="sub">Eternal Blossoming · 365 Day</div>
-</div>
-<div class="ui status">
-  <div class="phase" id="ui-phase">ARRIVAL</div>
-  <div class="pct" id="ui-pct">0%</div>
-</div>
-<div class="ui info-bl">
-  <div class="date">OUR PHOTOS · FOREVER</div>
-  <div class="desc" id="ui-desc"></div>
-</div>
-<div class="ui info-br">
-  <div class="hint">Scroll to explore</div>
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lbClose">✕</button>
+  <img id="lbImg" src="" alt="">
 </div>
 
-<!-- Nav Dots -->
-<div class="nav-dots" id="nav-dots"></div>
+<!-- ==================== INTRO ==================== -->
+<section class="intro" id="intro">
+  <div class="intro-bg"></div>
+  <div class="intro-names" id="introNames">
+    <span style="animation-delay:.5s">你</span><span class="intro-amp" style="animation-delay:.8s">&</span><span style="animation-delay:1.1s">我</span>
+  </div>
+  <div class="intro-sub">OUR STORY IN PHOTOS</div>
+  <button class="intro-enter" id="enterBtn"><span class="breathing">进 入 我 们 的 世 界</span></button>
+  <div class="scroll-hint"><div class="scroll-hint-line"></div></div>
+</section>
 
-<!-- Center Text -->
-<div class="center-text" id="center-text">
-  <div class="ct-main" id="ct-main"></div>
-  <div class="ct-sub" id="ct-sub"></div>
-  <button class="ct-btn" id="ct-btn" style="display:none"></button>
-</div>
+<!-- ==================== PHOTO SECTIONS ==================== -->
 
-<!-- Scroll Hint -->
-<div class="scroll-hint" id="scroll-hint">
-  <div class="sh-t">Scroll to begin</div>
-  <div class="sh-l"></div>
-</div>
+<section class="section photo-section" id="s1">
+  <div class="photo-frame"><img data-src="photos/01.jpeg" alt=""><div class="photo-overlay"></div></div>
+  <div class="photo-text">
+    <div class="section-num">01</div>
+    <h2>初 见</h2>
+    <div class="divider"></div>
+    <p>那个瞬间，时间仿佛静止了。世界变得很安静，只剩下心跳的声音。从此，我的眼里有了光。</p>
+  </div>
+</section>
 
-<!-- Photo Frames (positioned by JS) -->
-<div class="photo-frame" id="pf0"><div class="pf-border"></div><img src="photos/01.jpeg"/></div>
-<div class="photo-frame" id="pf1"><div class="pf-border"></div><img src="photos/02.jpeg"/></div>
-<div class="photo-frame" id="pf2"><div class="pf-border"></div><img src="photos/03.jpeg"/></div>
-<div class="photo-frame" id="pf3"><div class="pf-border"></div><img src="photos/04.png"/></div>
-<div class="photo-frame" id="pf4"><div class="pf-border"></div><img src="photos/06.png"/></div>
-<div class="photo-frame" id="pf5"><div class="pf-border"></div><img src="photos/07.jpeg"/></div>
-<div class="photo-frame" id="pf6"><div class="pf-border"></div><img src="photos/08.jpeg"/></div>
-<div class="photo-frame" id="pf7"><div class="pf-border"></div><img src="photos/09.jpeg"/></div>
-<div class="photo-frame" id="pf8"><div class="pf-border"></div><img src="photos/10.jpeg"/></div>
-<div class="photo-frame" id="pf9"><div class="pf-border"></div><img src="photos/11.jpeg"/></div>
+<section class="section photo-section reverse" id="s2">
+  <div class="photo-frame"><img data-src="photos/02.jpeg" alt=""><div class="photo-overlay"></div></div>
+  <div class="photo-text">
+    <div class="section-num">02</div>
+    <h2>心 动</h2>
+    <div class="divider"></div>
+    <p>每一次不经意的对视，每一次擦肩而过，都在心里种下了一颗小小的种子，悄悄发芽。</p>
+  </div>
+</section>
 
-<script type="importmap">
-{"imports":{"three":"https://unpkg.com/three@0.164.1/build/three.module.js","three/addons/":"https://unpkg.com/three@0.164.1/examples/jsm/"}}
-</script>
-<script type="module">
-import * as THREE from 'three';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+<section class="section photo-section" id="s3">
+  <div class="photo-frame"><img data-src="photos/03.jpeg" alt=""><div class="photo-overlay"></div></div>
+  <div class="photo-text">
+    <div class="section-num">03</div>
+    <h2>陪 伴</h2>
+    <div class="divider"></div>
+    <p>走过春夏秋冬，看过日出日落。最浪漫的事，就是和你一起慢慢变老。</p>
+  </div>
+</section>
 
-/* ═══════════════════════════════════════
-   SECTIONS — matching original video flow
-   ═══════════════════════════════════════ */
-const SECTIONS = [
-  { phase:'ARRIVAL', title:'在最初', sub:'是种子', desc:'万物始于一粒微小的种子，沉睡在大地的怀抱中。', photos:[], photoPos:null },
-  { phase:'ROOTS', title:'扎根', sub:'向深处', desc:'根系在黑暗中延伸，汲取生命的养分。', photos:[0,1], photoPos:'left' },
-  { phase:'GROWTH', title:'生长', sub:'向天空', desc:'枝干向着阳光伸展，每一片叶子都在诉说生命的故事。', photos:[2,3,4], photoPos:'right' },
-  { phase:'BLOSSOM', title:'花开', sub:'满园春', desc:'万千花瓣在风中起舞，整个世界都沉浸在永恒的绽放中。', photos:[5,6,7], photoPos:'left', btn:'Enter the Garden' },
-  { phase:'ETERNAL', title:'永恒', sub:'这一刻', desc:'花开一瞬，却美了整个永恒。', photos:[8,9], photoPos:'center' },
+<section class="section photo-section reverse" id="s4">
+  <div class="photo-frame"><img data-src="photos/04.png" alt=""><div class="photo-overlay"></div></div>
+  <div class="photo-text">
+    <div class="section-num">04</div>
+    <h2>温 暖</h2>
+    <div class="divider"></div>
+    <p>你的笑容是我最好的良药。不管外面的世界多冷，有你在的地方就是家。</p>
+  </div>
+</section>
+
+<section class="section photo-section" id="s5">
+  <div class="photo-frame"><img data-src="photos/06.png" alt=""><div class="photo-overlay"></div></div>
+  <div class="photo-text">
+    <div class="section-num">05</div>
+    <h2>冒 险</h2>
+    <div class="divider"></div>
+    <p>和你在一起，平凡的日子也变成了冒险。每一步都是风景，每一刻都值得纪念。</p>
+  </div>
+</section>
+
+<section class="section photo-section reverse" id="s6">
+  <div class="photo-frame"><img data-src="photos/07.jpeg" alt=""><div class="photo-overlay"></div></div>
+  <div class="photo-text">
+    <div class="section-num">06</div>
+    <h2>默 契</h2>
+    <div class="divider"></div>
+    <p>不需要太多言语，一个眼神就够了。我们之间的默契，是时间给我们最好的礼物。</p>
+  </div>
+</section>
+
+<section class="section photo-section" id="s7">
+  <div class="photo-frame"><img data-src="photos/08.jpeg" alt=""><div class="photo-overlay"></div></div>
+  <div class="photo-text">
+    <div class="section-num">07</div>
+    <h2>旅 途</h2>
+    <div class="divider"></div>
+    <p>世界那么大，幸好身边是你。每一段旅途，因为有你而变得意义非凡。</p>
+  </div>
+</section>
+
+<section class="section photo-section reverse" id="s8">
+  <div class="photo-frame"><img data-src="photos/09.jpeg" alt=""><div class="photo-overlay"></div></div>
+  <div class="photo-text">
+    <div class="section-num">08</div>
+    <h2>幸 福</h2>
+    <div class="divider"></div>
+    <p>幸福其实很简单——就是和你一起吃早餐，一起散步，一起看星星，一起做梦。</p>
+  </div>
+</section>
+
+<!-- ==================== GALLERY ==================== -->
+<section class="section gallery-section" id="gallery">
+  <div class="gallery-title">时 光 影 集</div>
+  <div class="gallery-grid" id="galleryGrid"></div>
+</section>
+
+<!-- ==================== ENDING ==================== -->
+<section class="ending" id="ending">
+  <div class="ending-text">余生很长<br>我想和你一起走</div>
+  <div class="ending-date">FOREVER & ALWAYS</div>
+</section>
+
+<script>
+(function(){
+'use strict';
+
+/* ==================== CONFIG ==================== */
+var PHOTOS=[
+  {src:'photos/01.jpeg',caption:'初见'},
+  {src:'photos/02.jpeg',caption:'心动'},
+  {src:'photos/03.jpeg',caption:'陪伴'},
+  {src:'photos/04.png',caption:'温暖'},
+  {src:'photos/06.png',caption:'冒险'},
+  {src:'photos/07.jpeg',caption:'默契'},
+  {src:'photos/08.jpeg',caption:'旅途'},
+  {src:'photos/09.jpeg',caption:'幸福'},
+  {src:'photos/10.jpeg',caption:'时光'},
+  {src:'photos/11.jpeg',caption:'永恒'}
 ];
-const SEC_H = window.innerHeight * 2.5;
-const TOTAL_H = SEC_H * SECTIONS.length;
 
-/* ═══════════════════════════════════════
-   SCROLL CONTAINER
-   ═══════════════════════════════════════ */
-document.getElementById('scroll-container').style.height = TOTAL_H + 'px';
+/* ==================== CANVAS PARTICLES ==================== */
+var cv=document.getElementById('particles'),cx=cv.getContext('2d');
+var W,H,dpr=Math.min(window.devicePixelRatio||1,2);
+function resize(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0)}
+resize();addEventListener('resize',resize);
 
-// Nav dots
-const dotsEl = document.getElementById('nav-dots');
-SECTIONS.forEach((_, i) => {
-  const d = document.createElement('div');
-  d.className = 'nav-dot' + (i === 0 ? ' active' : '');
-  d.addEventListener('click', () => window.scrollTo({ top: i * SEC_H, behavior: 'smooth' }));
-  dotsEl.appendChild(d);
-});
-
-/* ═══════════════════════════════════════
-   BGM — ambient piano
-   ═══════════════════════════════════════ */
-const bgmBtn = document.getElementById('bgm-btn');
-let audioCtx, gainNode, bgmOn = false;
-function startBGM() {
-  const AC = window.AudioContext || window.webkitAudioContext;
-  audioCtx = new AC();
-  gainNode = audioCtx.createGain();
-  gainNode.gain.value = 0;
-  gainNode.connect(audioCtx.destination);
-  const chords = [
-    [261.63, 329.63, 392.00, 493.88],
-    [220.00, 261.63, 329.63, 392.00],
-    [174.61, 220.00, 261.63, 349.23],
-    [196.00, 246.94, 293.66, 392.00],
-  ];
-  let t = audioCtx.currentTime + 0.1;
-  function loop() {
-    if (!bgmOn) return;
-    chords.forEach((freqs, ci) => {
-      const ct = t + ci * 4;
-      freqs.forEach(f => {
-        const o = audioCtx.createOscillator();
-        const e = audioCtx.createGain();
-        o.type = 'sine'; o.frequency.value = f;
-        o.detune.value = (Math.random() - 0.5) * 6;
-        e.gain.setValueAtTime(0, ct);
-        e.gain.linearRampToValueAtTime(0.035, ct + 0.6);
-        e.gain.exponentialRampToValueAtTime(0.012, ct + 2.8);
-        e.gain.exponentialRampToValueAtTime(0.001, ct + 4);
-        o.connect(e); e.connect(gainNode);
-        o.start(ct); o.stop(ct + 4.1);
-      });
-      // high shimmer
-      const s = audioCtx.createOscillator();
-      const se = audioCtx.createGain();
-      s.type = 'sine'; s.frequency.value = freqs[3] * 2;
-      se.gain.setValueAtTime(0, ct);
-      se.gain.linearRampToValueAtTime(0.006, ct + 0.8);
-      se.gain.exponentialRampToValueAtTime(0.001, ct + 3.5);
-      s.connect(se); se.connect(gainNode);
-      s.start(ct); s.stop(ct + 3.6);
+var bokeh=[];
+function initBokeh(){
+  bokeh=[];
+  var count=Math.min(60,Math.floor(W*H/15000));
+  for(var i=0;i<count;i++){
+    bokeh.push({
+      x:Math.random()*W,y:Math.random()*H,
+      r:1+Math.random()*3,
+      vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,
+      alpha:.03+Math.random()*.08,
+      pulse:Math.random()*6.28,speed:.005+Math.random()*.01
     });
-    t += 16;
-    setTimeout(loop, 15000);
   }
-  bgmOn = true;
-  gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 3);
-  loop();
-  bgmBtn.classList.add('on');
 }
-bgmBtn.addEventListener('click', () => {
-  if (!audioCtx) { startBGM(); return; }
-  if (bgmOn) {
-    bgmOn = false;
-    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
-    bgmBtn.classList.remove('on');
-  } else {
-    bgmOn = true;
-    gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 2);
-    bgmBtn.classList.add('on');
-    // restart scheduling
-    let t = audioCtx.currentTime + 0.1;
-    const chords = [
-      [261.63, 329.63, 392.00, 493.88],
-      [220.00, 261.63, 329.63, 392.00],
-      [174.61, 220.00, 261.63, 349.23],
-      [196.00, 246.94, 293.66, 392.00],
-    ];
-    function loop() {
-      if (!bgmOn) return;
-      chords.forEach((freqs, ci) => {
-        const ct = t + ci * 4;
-        freqs.forEach(f => {
-          const o = audioCtx.createOscillator();
-          const e = audioCtx.createGain();
-          o.type = 'sine'; o.frequency.value = f;
-          o.detune.value = (Math.random() - 0.5) * 6;
-          e.gain.setValueAtTime(0, ct);
-          e.gain.linearRampToValueAtTime(0.035, ct + 0.6);
-          e.gain.exponentialRampToValueAtTime(0.012, ct + 2.8);
-          e.gain.exponentialRampToValueAtTime(0.001, ct + 4);
-          o.connect(e); e.connect(gainNode);
-          o.start(ct); o.stop(ct + 4.1);
-        });
-      });
-      t += 16;
-      setTimeout(loop, 15000);
-    }
-    loop();
+initBokeh();
+
+function drawBokeh(){
+  for(var i=0;i<bokeh.length;i++){
+    var b=bokeh[i];
+    b.x+=b.vx;b.y+=b.vy;b.pulse+=b.speed;
+    if(b.x<-10)b.x=W+10;if(b.x>W+10)b.x=-10;
+    if(b.y<-10)b.y=H+10;if(b.y>H+10)b.y=-10;
+    var a=b.alpha*(.5+Math.sin(b.pulse)*.5);
+    cx.globalAlpha=a;cx.fillStyle='#c8a090';
+    cx.beginPath();cx.arc(b.x,b.y,b.r,0,6.28);cx.fill();
+    // glow
+    cx.globalAlpha=a*.3;cx.beginPath();cx.arc(b.x,b.y,b.r*3,0,6.28);cx.fill();
   }
-});
+}
 
-/* ═══════════════════════════════════════
-   THREE.JS — full screen 3D scene
-   ═══════════════════════════════════════ */
-const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.7;
-
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x050208);
-scene.fog = new THREE.FogExp2(0x050208, 0.012);
-
-const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 200);
-camera.position.set(0, 3, 15);
-
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.7, 0.4, 0.85);
-composer.addPass(bloom);
-
-// Lights
-scene.add(new THREE.AmbientLight(0x220a15, 0.5));
-const dirLight = new THREE.DirectionalLight(0xffeedd, 0.4);
-dirLight.position.set(5, 15, 5); scene.add(dirLight);
-const pinkLight = new THREE.PointLight(0xff6090, 2.5, 35);
-pinkLight.position.set(-3, 5, 0); scene.add(pinkLight);
-const warmLight = new THREE.PointLight(0xffaa44, 1.5, 25);
-warmLight.position.set(4, 3, -5); scene.add(warmLight);
-
-// Ground
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(120, 250),
-  new THREE.MeshStandardMaterial({ color: 0x0a0510, roughness: 0.95 })
-);
-ground.rotation.x = -Math.PI / 2; ground.position.y = -0.1; ground.position.z = -60;
-scene.add(ground);
-
-// Path
-const pathPts = [];
-for (let i = 0; i < 80; i++) pathPts.push(new THREE.Vector3(Math.sin(i * 0.08) * 2.5, 0.02, -i * 1.5));
-const pathCurve = new THREE.CatmullRomCurve3(pathPts);
-scene.add(new THREE.Mesh(
-  new THREE.TubeGeometry(pathCurve, 200, 0.35, 8, false),
-  new THREE.MeshStandardMaterial({ color: 0x150a12, roughness: 0.8, emissive: 0x0a0508, emissiveIntensity: 0.15 })
-));
-scene.add(new THREE.Mesh(
-  new THREE.TubeGeometry(pathCurve, 200, 0.6, 8, false),
-  new THREE.MeshBasicMaterial({ color: 0xff6090, transparent: true, opacity: 0.025 })
-));
-
-// Trees — original pink cherry blossom style
-function createTree(x, z, s = 1) {
-  const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s);
-  const tc = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.15, 2, 0.1),
-    new THREE.Vector3(-0.08, 4.5, -0.05), new THREE.Vector3(0.1, 6.5, 0.04),
-    new THREE.Vector3(0, 8, 0)
-  ]);
-  g.add(new THREE.Mesh(new THREE.TubeGeometry(tc, 16, 0.13, 6, false),
-    new THREE.MeshStandardMaterial({ color: 0x3a1a15, roughness: 0.9 })));
-  // Branches
-  for (let i = 0; i < 5; i++) {
-    const a = (i / 5) * Math.PI * 2 + Math.random() * 0.5;
-    const len = 1.5 + Math.random() * 2;
-    const sy = 3 + Math.random() * 3.5;
-    const bc = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0, sy, 0),
-      new THREE.Vector3(Math.cos(a) * len * 0.5, sy + 0.5, Math.sin(a) * len * 0.5),
-      new THREE.Vector3(Math.cos(a) * len, sy + 1 + Math.random(), Math.sin(a) * len)
-    ]);
-    g.add(new THREE.Mesh(new THREE.TubeGeometry(bc, 8, 0.05, 6, false),
-      new THREE.MeshStandardMaterial({ color: 0x4a2020, roughness: 0.85 })));
+/* floating hearts on click */
+var hearts=[];
+function spawnHeart(x,y){
+  for(var i=0;i<6;i++){
+    var a=Math.random()*6.28,sp=.5+Math.random()*2;
+    hearts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,r:3+Math.random()*5,alpha:.6,life:1});
   }
-  // Blossoms — original vibrant pink
-  const colors = [0xffb7c5, 0xff91a4, 0xffc0cb, 0xff69b4, 0xffd1dc];
-  for (let i = 0; i < 25; i++) {
-    const geo = new THREE.SphereGeometry(0.7 + Math.random() * 1.1, 7, 5);
-    const pos = geo.attributes.position;
-    for (let j = 0; j < pos.count; j++) {
-      const v = new THREE.Vector3().fromBufferAttribute(pos, j);
-      v.x += (Math.random() - 0.5) * 0.35;
-      v.y += (Math.random() - 0.5) * 0.25;
-      v.z += (Math.random() - 0.5) * 0.35;
-      pos.setXYZ(j, v.x, v.y, v.z);
-    }
-    const c = colors[Math.floor(Math.random() * colors.length)];
-    g.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-      color: c, roughness: 0.7, transparent: true,
-      opacity: 0.55 + Math.random() * 0.35,
-      emissive: c, emissiveIntensity: 0.1
-    })).translateX((Math.random() - 0.5) * 5).translateY(5 + Math.random() * 4).translateZ((Math.random() - 0.5) * 5));
+}
+function drawHearts(){
+  for(var i=hearts.length-1;i>=0;i--){
+    var h=hearts[i];
+    h.x+=h.vx;h.y+=h.vy;h.vy+=.005;h.alpha*=.985;h.life*=.99;
+    if(h.alpha<.01){hearts.splice(i,1);continue}
+    cx.globalAlpha=h.alpha;
+    // draw heart shape
+    cx.save();cx.translate(h.x,h.y);cx.scale(h.r/10,h.r/10);
+    cx.fillStyle='#c8a090';
+    cx.beginPath();
+    cx.moveTo(0,-3);cx.bezierCurveTo(-5,-10,-14,-5,-7,2);
+    cx.lineTo(0,8);cx.lineTo(7,2);cx.bezierCurveTo(14,-5,5,-10,0,-3);
+    cx.fill();cx.restore();
   }
-  scene.add(g);
-}
-createTree(-7, -6, 1.2); createTree(5, -10, 0.9);
-createTree(-11, -20, 1.0); createTree(9, -18, 1.1);
-createTree(-4, -30, 1.3); createTree(13, -28, 0.8);
-createTree(-9, -42, 1.0); createTree(7, -48, 1.2);
-createTree(-13, -58, 0.9); createTree(11, -62, 1.1);
-
-// Petals — original pink
-const PC = 3000;
-const pGeo = new THREE.BufferGeometry();
-const pPos = new Float32Array(PC * 3), pVel = new Float32Array(PC * 3);
-const pSz = new Float32Array(PC), pPh = new Float32Array(PC), pCl = new Float32Array(PC * 3);
-const pPal = [new THREE.Color(0xffb7c5), new THREE.Color(0xff91a4), new THREE.Color(0xffc0cb), new THREE.Color(0xff69b4), new THREE.Color(0xffd1dc)];
-for (let i = 0; i < PC; i++) {
-  const i3 = i * 3;
-  pPos[i3] = (Math.random() - 0.5) * 45; pPos[i3 + 1] = Math.random() * 22; pPos[i3 + 2] = Math.random() * -90;
-  pVel[i3] = (Math.random() - 0.5) * 0.012; pVel[i3 + 1] = -0.006 - Math.random() * 0.012; pVel[i3 + 2] = (Math.random() - 0.5) * 0.008;
-  pSz[i] = 2 + Math.random() * 5; pPh[i] = Math.random() * Math.PI * 2;
-  const c = pPal[Math.floor(Math.random() * pPal.length)];
-  pCl[i3] = c.r; pCl[i3 + 1] = c.g; pCl[i3 + 2] = c.b;
-}
-pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-pGeo.setAttribute('size', new THREE.BufferAttribute(pSz, 1));
-pGeo.setAttribute('color', new THREE.BufferAttribute(pCl, 3));
-scene.add(new THREE.Points(pGeo, new THREE.ShaderMaterial({
-  vertexShader: `attribute float size;attribute vec3 color;varying vec3 vC;varying float vA;
-    void main(){vC=color;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=size*(200.0/-mv.z);gl_Position=projectionMatrix*mv;vA=smoothstep(90.0,10.0,-mv.z);}`,
-  fragmentShader: `varying vec3 vC;varying float vA;
-    void main(){vec2 u=gl_PointCoord-0.5;float d=length(u);if(d>0.5)discard;float a=smoothstep(0.5,0.08,d)*vA*0.6;gl_FragColor=vec4(vC,a);}`,
-  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
-})));
-
-// Fireflies
-const FC = 120;
-const fGeo = new THREE.BufferGeometry();
-const fPos = new Float32Array(FC * 3), fSz = new Float32Array(FC);
-for (let i = 0; i < FC; i++) {
-  fPos[i * 3] = (Math.random() - 0.5) * 35; fPos[i * 3 + 1] = 1 + Math.random() * 9; fPos[i * 3 + 2] = Math.random() * -80;
-  fSz[i] = 1.5 + Math.random() * 2.5;
-}
-fGeo.setAttribute('position', new THREE.BufferAttribute(fPos, 3));
-fGeo.setAttribute('size', new THREE.BufferAttribute(fSz, 1));
-const ffMat = new THREE.ShaderMaterial({
-  vertexShader: `attribute float size;varying float vA;uniform float t;
-    void main(){vec3 p=position;p.x+=sin(t*0.35+position.z*0.2)*0.5;p.y+=sin(t*0.55+position.x*0.15)*0.3;
-    vec4 mv=modelViewMatrix*vec4(p,1.0);gl_PointSize=size*(150.0/-mv.z);gl_Position=projectionMatrix*mv;
-    float fl=sin(t*2.2+position.x*7.0)*0.5+0.5;vA=fl*smoothstep(65.0,5.0,-mv.z)*0.65;}`,
-  fragmentShader: `varying float vA;
-    void main(){float d=length(gl_PointCoord-0.5);if(d>0.5)discard;float g=exp(-d*7.0);
-    vec3 c=mix(vec3(1.0,0.9,0.5),vec3(0.5,1.0,0.7),g);gl_FragColor=vec4(c,g*vA);}`,
-  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-  uniforms: { t: { value: 0 } }
-});
-scene.add(new THREE.Points(fGeo, ffMat));
-
-// Lanterns
-const lanterns = [];
-function createLantern(x, y, z) {
-  const g = new THREE.Group(); g.position.set(x, y, z);
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.2, 0.5, 8),
-    new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0xff2200, emissiveIntensity: 0.25, transparent: true, opacity: 0.75 })));
-  g.add(new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.015, 8, 16),
-    new THREE.MeshStandardMaterial({ color: 0xaa8833, metalness: 0.8 })).translateY(0.25));
-  g.add(new THREE.PointLight(0xff6622, 0.6, 7));
-  scene.add(g); return g;
-}
-for (let i = 0; i < 15; i++) {
-  const side = i % 2 === 0 ? -1 : 1;
-  lanterns.push(createLantern(side * (2.5 + Math.random()) + Math.sin(-i * 5 * 0.1) * 1.5, 2.5 + Math.random() * 0.4, -i * 5 - 3));
 }
 
-// Stars
-const SC = 500;
-const sGeo = new THREE.BufferGeometry();
-const sPos = new Float32Array(SC * 3);
-for (let i = 0; i < SC; i++) {
-  const th = Math.random() * Math.PI * 2, ph = Math.random() * Math.PI * 0.35, r = 65 + Math.random() * 25;
-  sPos[i * 3] = r * Math.sin(ph) * Math.cos(th);
-  sPos[i * 3 + 1] = r * Math.cos(ph) + 12;
-  sPos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th) - 35;
+function particleLoop(){
+  requestAnimationFrame(particleLoop);
+  cx.clearRect(0,0,W,H);
+  drawBokeh();drawHearts();
 }
-sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
-scene.add(new THREE.Points(sGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.1, transparent: true, opacity: 0.4 })));
+particleLoop();
 
-// Camera path
-const camPath = new THREE.CatmullRomCurve3([
-  new THREE.Vector3(0, 3, 15),
-  new THREE.Vector3(-0.8, 3.5, 6),
-  new THREE.Vector3(0.6, 4, -4),
-  new THREE.Vector3(-0.4, 3.5, -14),
-  new THREE.Vector3(0.5, 4.5, -24),
-  new THREE.Vector3(-0.8, 3.5, -34),
-  new THREE.Vector3(0.3, 5, -44),
-  new THREE.Vector3(-0.5, 4, -54),
-  new THREE.Vector3(0.2, 4.5, -65),
-  new THREE.Vector3(0, 5, -78),
-]);
+/* ==================== CURSOR ==================== */
+var ring=document.getElementById('curRing'),dot=document.getElementById('curDot');
+var cx2=W/2,cy2=H/2,tx=W/2,ty=H/2;
+var mob='ontouchstart'in window;
 
-/* ═══════════════════════════════════════
-   SCROLL STATE
-   ═══════════════════════════════════════ */
-const state = { progress: 0, section: 0 };
-function updateScroll() {
-  const max = TOTAL_H - window.innerHeight;
-  state.progress = Math.max(0, Math.min(1, window.scrollY / max));
-  state.section = Math.min(SECTIONS.length - 1, Math.floor(window.scrollY / SEC_H));
-}
-window.addEventListener('scroll', updateScroll, { passive: true });
+if(!mob){
+  document.addEventListener('mousemove',function(e){tx=e.clientX;ty=e.clientY;ring.classList.add('vis');dot.classList.add('vis')});
+  document.addEventListener('mouseleave',function(){ring.classList.remove('vis');dot.classList.remove('vis')});
+  !function uc(){cx2+=(tx-cx2)*.1;cy2+=(ty-cy2)*.1;ring.style.left=cx2+'px';ring.style.top=cy2+'px';dot.style.left=tx+'px';dot.style.top=ty+'px';requestAnimationFrame(uc)}();
 
-/* ═══════════════════════════════════════
-   UI UPDATES
-   ═══════════════════════════════════════ */
-const uiPhase = document.getElementById('ui-phase');
-const uiPct = document.getElementById('ui-pct');
-const uiDesc = document.getElementById('ui-desc');
-const centerText = document.getElementById('center-text');
-const ctMain = document.getElementById('ct-main');
-const ctSub = document.getElementById('ct-sub');
-const ctBtn = document.getElementById('ct-btn');
-const scrollHint = document.getElementById('scroll-hint');
-const navDots = dotsEl.querySelectorAll('.nav-dot');
-const photoFrames = [];
-for (let i = 0; i < 10; i++) photoFrames.push(document.getElementById('pf' + i));
-
-let lastSec = -1, txtTimer = null;
-
-function positionPhotoFrames(sec) {
-  // Hide all
-  photoFrames.forEach(f => f.classList.remove('show'));
-  const s = SECTIONS[sec];
-  if (!s.photos.length) return;
-  s.photos.forEach((pi, i) => {
-    const el = photoFrames[pi];
-    if (!el) return;
-    const vw = window.innerWidth, vh = window.innerHeight;
-    let w, h, x, y;
-    if (s.photoPos === 'left') {
-      w = vw * 0.22; h = w * 1.3;
-      x = vw * 0.06 + i * (w + 16);
-      y = vh * 0.5 - h * 0.5 + (i % 2 === 0 ? -20 : 20);
-    } else if (s.photoPos === 'right') {
-      w = vw * 0.2; h = w * 1.2;
-      x = vw * 0.55 + i * (w + 14);
-      y = vh * 0.5 - h * 0.5 + (i % 2 === 0 ? -15 : 15);
-    } else {
-      w = vw * 0.25; h = w * 1.1;
-      x = vw * 0.5 - (s.photos.length * (w + 14)) / 2 + i * (w + 14);
-      y = vh * 0.52 - h * 0.5;
-    }
-    el.style.cssText = `width:${w}px;height:${h}px;left:${x}px;top:${y}px;`;
-    setTimeout(() => el.classList.add('show'), 100 + i * 120);
+  // hover effect on interactive elements
+  document.addEventListener('mouseover',function(e){
+    if(e.target.closest('a,button,.gallery-item,.photo-frame,.bgm-btn,.intro-enter'))ring.classList.add('hover');
   });
-}
-
-function updateUI() {
-  const p = state.progress;
-  const sec = state.section;
-  uiPct.textContent = Math.round(p * 100) + '%';
-
-  if (sec !== lastSec) {
-    lastSec = sec;
-    const s = SECTIONS[sec];
-    uiPhase.textContent = s.phase;
-    uiDesc.textContent = s.desc;
-
-    // Nav dots
-    navDots.forEach((d, i) => d.classList.toggle('active', i === sec));
-
-    // Center text
-    centerText.classList.remove('show');
-    clearTimeout(txtTimer);
-    txtTimer = setTimeout(() => {
-      ctMain.textContent = s.title + '，' + s.sub;
-      ctSub.textContent = s.desc;
-      if (s.btn) {
-        ctBtn.textContent = s.btn;
-        ctBtn.style.display = 'block';
-        ctBtn.onclick = () => window.scrollTo({ top: (sec + 1) * SEC_H, behavior: 'smooth' });
-      } else {
-        ctBtn.style.display = 'none';
-      }
-      centerText.classList.add('show');
-    }, 350);
-
-    // Photo frames
-    positionPhotoFrames(sec);
-  }
-
-  scrollHint.style.opacity = p > 0.01 ? Math.max(0, 1 - p * 25) : 1;
-}
-
-/* ═══════════════════════════════════════
-   ANIMATE
-   ═══════════════════════════════════════ */
-const clock = new THREE.Clock();
-
-function animate() {
-  requestAnimationFrame(animate);
-  const t = clock.getElapsedTime();
-  const p = state.progress;
-
-  // Camera along path
-  const cp = camPath.getPointAt(p);
-  const cl = camPath.getPointAt(Math.min(1, p + 0.03));
-  camera.position.lerp(cp, 0.04);
-  const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
-  const tgt = cl.clone().sub(cp).normalize();
-  dir.lerp(tgt, 0.04);
-  camera.lookAt(camera.position.clone().add(dir.multiplyScalar(12)));
-
-  // Petals
-  const pp = pGeo.attributes.position.array;
-  for (let i = 0; i < PC; i++) {
-    const i3 = i * 3;
-    pp[i3] += pVel[i3] + Math.sin(t * 0.4 + pPh[i]) * 0.003;
-    pp[i3 + 1] += pVel[i3 + 1];
-    pp[i3 + 2] += pVel[i3 + 2];
-    if (pp[i3 + 1] < -1) {
-      pp[i3] = (Math.random() - 0.5) * 45;
-      pp[i3 + 1] = 16 + Math.random() * 6;
-      pp[i3 + 2] = camera.position.z - 20 + Math.random() * -45;
-    }
-  }
-  pGeo.attributes.position.needsUpdate = true;
-
-  // Fireflies
-  ffMat.uniforms.t.value = t;
-
-  // Lanterns sway
-  lanterns.forEach((l, i) => {
-    l.rotation.z = Math.sin(t * 0.4 + i * 2) * 0.04;
-    l.children[2].intensity = 0.5 + Math.sin(t * 1.6 + i * 3) * 0.25;
+  document.addEventListener('mouseout',function(e){
+    if(e.target.closest('a,button,.gallery-item,.photo-frame,.bgm-btn,.intro-enter'))ring.classList.remove('hover');
   });
 
-  // Lights
-  pinkLight.intensity = 2.5 + Math.sin(t * 0.4) * 0.5;
-  pinkLight.position.x = -3 + Math.sin(t * 0.2) * 2;
-  warmLight.intensity = 1.5 + Math.sin(t * 0.55 + 1) * 0.4;
-
-  // Bloom
-  bloom.strength = 0.5 + p * 0.7;
-  scene.fog.density = 0.012 - p * 0.004;
-
-  updateUI();
-  composer.render();
+  // click hearts
+  document.addEventListener('click',function(e){spawnHeart(e.clientX,e.clientY)});
 }
 
-/* ═══════════════════════════════════════
-   LOADING
-   ═══════════════════════════════════════ */
-const lFill = document.getElementById('l-fill');
-const lPct = document.getElementById('l-pct');
-const lEnter = document.getElementById('l-enter');
-let loadProg = 0;
-const loadInt = setInterval(() => {
-  loadProg += Math.random() * 12 + 6;
-  if (loadProg >= 100) {
-    loadProg = 100; clearInterval(loadInt);
-    lFill.style.width = '100%'; lPct.textContent = '100%';
-    lEnter.classList.add('show');
-  } else {
-    lFill.style.width = loadProg + '%';
-    lPct.textContent = Math.round(loadProg) + '%';
+/* ==================== PRELOADER ==================== */
+var preloader=document.getElementById('preloader');
+var loaded=0,total=PHOTOS.length;
+
+function onImgLoad(){
+  loaded++;
+  if(loaded>=total){
+    setTimeout(function(){preloader.classList.add('done')},300);
   }
-}, 200);
+}
 
-lEnter.addEventListener('click', () => {
-  document.getElementById('loader').classList.add('hide');
-  bgmBtn.classList.add('show');
-  // Auto-start BGM
-  setTimeout(() => { if (!audioCtx) startBGM(); }, 500);
+PHOTOS.forEach(function(p){
+  var img=new Image();
+  img.onload=onImgLoad;img.onerror=onImgLoad;
+  img.src=p.src;
 });
 
-updateScroll();
-animate();
+// fallback
+setTimeout(function(){preloader.classList.add('done')},5000);
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight);
-  if (lastSec >= 0) positionPhotoFrames(lastSec);
+/* ==================== ENTER ==================== */
+document.getElementById('enterBtn').onclick=function(){
+  document.getElementById('intro').scrollIntoView({behavior:'smooth'});
+  setTimeout(function(){
+    window.scrollTo({top:window.innerHeight,behavior:'smooth'});
+  },300);
+  document.getElementById('bgmBtn').classList.add('show');
+};
+
+/* ==================== LAZY LOAD & SCROLL ANIMATIONS ==================== */
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){
+      var el=entry.target;
+
+      // photo frame
+      var img=el.querySelector('img[data-src]');
+      if(img&&!img.src){img.src=img.getAttribute('data-src');img.removeAttribute('data-src')}
+      if(img){img.classList.add('visible')}
+
+      // text elements
+      var nums=el.querySelectorAll('.section-num');
+      var h2s=el.querySelectorAll('h2');
+      var ps=el.querySelectorAll('p');
+      var dividers=el.querySelectorAll('.divider');
+      nums.forEach(function(n){n.classList.add('visible')});
+      h2s.forEach(function(n){n.classList.add('visible')});
+      ps.forEach(function(n){n.classList.add('visible')});
+      dividers.forEach(function(n){n.classList.add('visible')});
+
+      // gallery title
+      var gt=el.querySelector('.gallery-title');
+      if(gt)gt.classList.add('visible');
+
+      // ending
+      var et=el.querySelector('.ending-text');
+      var ed=el.querySelector('.ending-date');
+      if(et)et.classList.add('visible');
+      if(ed)ed.classList.add('visible');
+    }
+  });
+},{threshold:.15,rootMargin:'0px 0px -50px 0px'});
+
+// observe all sections
+document.querySelectorAll('.section,.ending').forEach(function(s){observer.observe(s)});
+
+/* ==================== PARALLAX ==================== */
+if(!mob){
+  window.addEventListener('scroll',function(){
+    var scrolled=window.pageYOffset;
+    document.querySelectorAll('.photo-frame img').forEach(function(img){
+      var rect=img.getBoundingClientRect();
+      var center=(rect.top+rect.bottom)/2;
+      var offset=(center-H/2)*.03;
+      img.style.transform='translateY('+offset+'px) scale('+(img.classList.contains('visible')?1:1.08)+')';
+    });
+  },{passive:true});
+}
+
+/* ==================== PROGRESS BAR ==================== */
+var progressBar=document.getElementById('progress');
+window.addEventListener('scroll',function(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  var p=h>0?(window.pageYOffset/h)*100:0;
+  progressBar.style.width=p+'%';
+},{passive:true});
+
+/* ==================== GALLERY ==================== */
+var grid=document.getElementById('galleryGrid');
+PHOTOS.forEach(function(p,i){
+  var item=document.createElement('div');
+  item.className='gallery-item';
+  item.innerHTML='<img data-src="'+p.src+'" alt="'+p.caption+'"><div class="gallery-caption"><span>'+p.caption+'</span></div>';
+  item.onclick=function(){
+    var lb=document.getElementById('lightbox');
+    document.getElementById('lbImg').src=p.src;
+    lb.classList.add('open');
+  };
+  grid.appendChild(item);
+  observer.observe(item);
 });
+
+document.getElementById('lbClose').onclick=function(){document.getElementById('lightbox').classList.remove('open')};
+document.getElementById('lightbox').onclick=function(e){if(e.target===this)this.classList.remove('open')};
+
+/* ==================== BGM ==================== */
+// Placeholder: user can add their own music
+var bgm=document.getElementById('bgmBtn');
+var audio=null;
+
+// If you have a music file, uncomment and set the src:
+// audio=new Audio('your-music.mp3');audio.loop=true;audio.volume=.3;
+
+bgm.onclick=function(){
+  if(!audio){
+    // No music configured - try to play a default
+    alert('将你的音乐文件放到仓库根目录，命名为 bgm.mp3，然后取消注释代码中的音频部分即可');
+    return;
+  }
+  if(audio.paused){audio.play();bgm.classList.add('playing')}
+  else{audio.pause();bgm.classList.remove('playing')}
+};
+
+/* ==================== KEYBOARD ==================== */
+document.addEventListener('keydown',function(e){
+  if(e.code==='Escape')document.getElementById('lightbox').classList.remove('open');
+});
+
+})();
 </script>
 </body>
 </html>
