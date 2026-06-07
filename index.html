@@ -3,241 +3,150 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>JYM & WTF</title>
+<title>BLOSSOMING</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+SC:wght@200;300;400;600&display=swap');
-
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400;600&family=Inter:wght@200;300;400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;scrollbar-width:none}
 html::-webkit-scrollbar{display:none}
-body{background:#0c0a0f;color:#e8e0d8;font-family:'Cormorant Garamond','Noto Serif SC',serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body{background:#000;color:#fff;font-family:'Inter','Noto Serif SC',sans-serif;overflow-x:hidden;cursor:default}
+::selection{background:rgba(255,100,150,0.3)}
 
 /* ── Loading ─────────────────── */
-#loader{position:fixed;inset:0;z-index:9999;background:#0c0a0f;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 2s cubic-bezier(.4,0,.2,1),visibility 2s}
-#loader.done{opacity:0;visibility:hidden;pointer-events:none}
-#loader .l-line{width:1px;height:0;background:linear-gradient(to bottom,transparent,#c9a87c,transparent);transition:height 2s cubic-bezier(.4,0,.2,1)}
-#loader .l-line.grow{height:120px}
-#loader .l-text{margin-top:40px;font-size:11px;letter-spacing:8px;color:rgba(201,168,124,0.4);text-transform:uppercase;opacity:0;transition:opacity 1.5s 0.5s}
-#loader .l-text.show{opacity:1}
+#loader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1s,visibility 1s}
+#loader.hide{opacity:0;visibility:hidden;pointer-events:none}
+#loader .l-icon{font-size:42px;margin-bottom:36px;opacity:0.8}
+#loader .l-title{font-size:11px;letter-spacing:8px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:48px}
+#loader .l-bar{width:200px;height:1px;background:rgba(255,255,255,0.08);overflow:hidden}
+#loader .l-fill{width:0;height:100%;background:rgba(255,120,170,0.5);transition:width 0.3s}
+#loader .l-pct{margin-top:14px;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:4px}
+#loader .l-enter{margin-top:48px;font-size:10px;letter-spacing:5px;color:rgba(255,255,255,0.25);text-transform:uppercase;padding:10px 28px;border:1px solid rgba(255,255,255,0.08);background:transparent;cursor:pointer;transition:all 0.4s;display:none;font-family:inherit}
+#loader .l-enter.show{display:block}
+#loader .l-enter:hover{border-color:rgba(255,120,170,0.3);color:rgba(255,255,255,0.5)}
 
-/* ── BGM Button ──────────────── */
-#bgm-btn{position:fixed;bottom:30px;right:30px;z-index:50;width:40px;height:40px;border:1px solid rgba(201,168,124,0.15);border-radius:50%;background:rgba(12,10,15,0.6);backdrop-filter:blur(10px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.4s;opacity:0;pointer-events:none}
-#bgm-btn.show{opacity:1;pointer-events:auto}
-#bgm-btn:hover{border-color:rgba(201,168,124,0.4);transform:scale(1.1)}
-#bgm-btn svg{width:16px;height:16px;fill:rgba(201,168,124,0.5);transition:fill 0.3s}
-#bgm-btn:hover svg{fill:rgba(201,168,124,0.8)}
-#bgm-btn .bars{display:flex;gap:2px;align-items:flex-end;height:14px}
-#bgm-btn .bar{width:2px;background:rgba(201,168,124,0.5);border-radius:1px;animation:none}
-#bgm-btn.playing .bar{animation:bounce 0.8s ease-in-out infinite alternate}
-#bgm-btn .bar:nth-child(1){height:4px;animation-delay:0s}
-#bgm-btn .bar:nth-child(2){height:8px;animation-delay:0.1s}
-#bgm-btn .bar:nth-child(3){height:12px;animation-delay:0.2s}
-#bgm-btn .bar:nth-child(4){height:6px;animation-delay:0.3s}
-@keyframes bounce{0%{height:3px}100%{height:14px}}
+/* ── Canvas ──────────────────── */
+#c{position:fixed;inset:0;z-index:1;display:block}
 
-/* ── Global ──────────────────── */
-canvas{position:fixed;inset:0;z-index:1;display:block}
-.overlay{position:fixed;inset:0;z-index:2;pointer-events:none}
+/* ── BGM ─────────────────────── */
+#bgm-btn{position:fixed;bottom:30px;right:30px;z-index:50;width:36px;height:36px;border:1px solid rgba(255,255,255,0.08);border-radius:50%;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:all 0.4s}
+#bgm-btn.show{opacity:1}
+#bgm-btn:hover{border-color:rgba(255,120,170,0.3)}
+#bgm-btn .bars{display:flex;gap:1.5px;align-items:flex-end;height:12px}
+#bgm-btn .bar{width:1.5px;background:rgba(255,120,170,0.4);border-radius:1px;animation:none}
+#bgm-btn.on .bar{animation:bz 0.7s ease-in-out infinite alternate}
+#bgm-btn .bar:nth-child(1){height:3px;animation-delay:0s}
+#bgm-btn .bar:nth-child(2){height:6px;animation-delay:0.1s}
+#bgm-btn .bar:nth-child(3){height:10px;animation-delay:0.2s}
+#bgm-btn .bar:nth-child(4){height:5px;animation-delay:0.3s}
+@keyframes bz{0%{height:2px}100%{height:12px}}
 
-/* ── Progress Bar (top) ──────── */
-.progress-track{position:fixed;top:0;left:0;right:0;height:1px;z-index:30;background:rgba(255,255,255,0.03)}
-.progress-fill{height:100%;width:0;background:rgba(201,168,124,0.3);transition:width 0.15s}
+/* ── Fixed UI ────────────────── */
+.ui{position:fixed;z-index:10;pointer-events:none}
+.brand{top:28px;left:32px}
+.brand .logo{font-size:24px;font-weight:600;letter-spacing:10px;color:rgba(255,255,255,0.85)}
+.brand .sub{font-size:8px;letter-spacing:4px;color:rgba(255,255,255,0.2);text-transform:uppercase;margin-top:4px}
+.status{top:28px;right:32px;text-align:right}
+.status .phase{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.3);text-transform:uppercase}
+.status .pct{font-size:20px;font-weight:200;color:rgba(255,255,255,0.5);margin-top:2px;font-variant-numeric:tabular-nums}
+.info-bl{bottom:32px;left:32px}
+.info-bl .date{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.2);text-transform:uppercase}
+.info-bl .desc{font-size:12px;color:rgba(255,255,255,0.35);margin-top:6px;max-width:260px;line-height:1.8;letter-spacing:0.5px}
+.info-br{bottom:32px;right:32px;text-align:right}
+.info-br .hint{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.15);text-transform:uppercase}
 
-/* ── Fixed Brand ─────────────── */
-.brand{position:fixed;top:28px;left:32px;z-index:20;pointer-events:none}
-.brand-name{font-size:13px;letter-spacing:10px;color:rgba(201,168,124,0.4);font-weight:300}
-.brand-sub{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.12);margin-top:4px}
+/* ── Nav Dots ────────────────── */
+.nav-dots{position:fixed;right:32px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;gap:12px;pointer-events:auto}
+.nav-dot{width:6px;height:6px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:transparent;cursor:pointer;transition:all 0.4s}
+.nav-dot.active{background:rgba(255,120,170,0.6);border-color:rgba(255,120,170,0.4)}
 
-/* ── Fixed Scroll Cue ────────── */
-.scroll-cue{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:20;pointer-events:none;text-align:center;opacity:1;transition:opacity 0.6s}
-.scroll-cue .sc-line{width:1px;height:28px;background:linear-gradient(to bottom,rgba(201,168,124,0.25),transparent);margin:0 auto;animation:cueFloat 3s ease-in-out infinite}
-.scroll-cue .sc-text{font-size:8px;letter-spacing:5px;color:rgba(255,255,255,0.1);margin-top:10px;text-transform:uppercase}
-@keyframes cueFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+/* ── Center Text ─────────────── */
+.center-text{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none;text-align:center;opacity:0;transition:opacity 1s}
+.center-text.show{opacity:1}
+.center-text .ct-main{font-family:'Noto Serif SC',serif;font-size:clamp(26px,4.5vw,52px);font-weight:200;color:rgba(255,255,255,0.88);line-height:1.7;letter-spacing:4px;text-shadow:0 0 40px rgba(255,100,150,0.15)}
+.center-text .ct-sub{font-size:11px;letter-spacing:5px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:18px}
+.center-text .ct-btn{margin-top:28px;padding:10px 28px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.35);font-size:10px;letter-spacing:4px;text-transform:uppercase;cursor:pointer;pointer-events:auto;transition:all 0.4s;font-family:inherit}
+.center-text .ct-btn:hover{border-color:rgba(255,120,170,0.3);color:rgba(255,255,255,0.6)}
 
-/* ── Content Layer ───────────── */
-.content{position:relative;z-index:5;pointer-events:none}
-.content *{pointer-events:auto}
+/* ── Scroll Hint ─────────────── */
+.scroll-hint{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:10;pointer-events:none;text-align:center;animation:shFloat 2.5s ease-in-out infinite}
+.scroll-hint .sh-t{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.2);text-transform:uppercase}
+.scroll-hint .sh-l{width:1px;height:28px;background:linear-gradient(to bottom,rgba(255,255,255,0.2),transparent);margin:8px auto 0}
+@keyframes shFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
 
-/* ── Section ─────────────────── */
-.section{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 40px;position:relative}
+/* ── Photo Frame in 3D ───────── */
+.photo-frame{position:fixed;z-index:8;pointer-events:none;opacity:0;transition:opacity 1.2s}
+.photo-frame.show{opacity:1}
+.photo-frame img{width:100%;height:100%;object-fit:cover;border-radius:2px;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.photo-frame .pf-border{position:absolute;inset:-1px;border:1px solid rgba(255,255,255,0.06);border-radius:3px;pointer-events:none}
 
-/* ── Intro ───────────────────── */
-.intro{text-align:center}
-.intro .year{font-size:clamp(60px,12vw,140px);font-weight:300;color:rgba(201,168,124,0.04);letter-spacing:15px;line-height:1;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap}
-.intro h1{font-size:clamp(28px,5vw,52px);font-weight:300;color:rgba(255,255,255,0.85);letter-spacing:6px;line-height:1.8}
-.intro h1 em{font-style:italic;color:rgba(201,168,124,0.7)}
-.intro .sub{font-size:11px;letter-spacing:5px;color:rgba(255,255,255,0.15);margin-top:28px;text-transform:uppercase}
-.intro .divider{width:1px;height:40px;background:linear-gradient(to bottom,rgba(201,168,124,0.2),transparent);margin:32px auto 0}
-
-/* ── Gallery ─────────────────── */
-.gallery-wrap{width:100%;max-width:1100px}
-.gallery-row{display:flex;gap:20px;margin-bottom:20px;justify-content:center}
-.gallery-row.reverse{flex-direction:row-reverse}
-
-.photo{position:relative;overflow:hidden;cursor:pointer;flex-shrink:0}
-.photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(30%) brightness(0.85);transition:all 1.2s cubic-bezier(.23,1,.32,1)}
-.photo:hover img{filter:grayscale(0%) brightness(1);transform:scale(1.04)}
-.photo .ph-border{position:absolute;inset:0;border:1px solid rgba(201,168,124,0.08);pointer-events:none;transition:border-color 0.6s}
-.photo:hover .ph-border{border-color:rgba(201,168,124,0.2)}
-.photo .ph-num{position:absolute;top:14px;left:14px;font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.15);font-family:'Cormorant Garamond',serif}
-
-/* Sizes */
-.photo.tall{width:240px;height:340px}
-.photo.wide{width:380px;height:260px}
-.photo.square{width:260px;height:260px}
-.photo.medium{width:280px;height:360px}
-
-@media(max-width:768px){
-  .gallery-row{flex-direction:column;align-items:center;gap:16px}
-  .gallery-row.reverse{flex-direction:column}
-  .photo.tall,.photo.wide,.photo.square,.photo.medium{width:85vw;height:auto;aspect-ratio:auto}
-  .photo.tall{aspect-ratio:3/4}
-  .photo.wide{aspect-ratio:16/10}
-  .photo.square{aspect-ratio:1}
-  .photo.medium{aspect-ratio:3/4}
-}
-
-/* ── Poetry Section ──────────── */
-.poetry{text-align:center;position:relative;padding:120px 40px}
-.poetry .p-bg{font-size:clamp(80px,15vw,180px);font-weight:300;color:rgba(201,168,124,0.025);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap;letter-spacing:20px}
-.poetry .p-line{font-size:clamp(16px,2.5vw,24px);font-weight:300;color:rgba(255,255,255,0.5);line-height:2.8;letter-spacing:3px}
-.poetry .p-line em{font-style:italic;color:rgba(201,168,124,0.5)}
-.poetry .p-note{font-size:10px;letter-spacing:4px;color:rgba(255,255,255,0.1);margin-top:40px;text-transform:uppercase}
-
-/* ── Ending ──────────────────── */
-.ending{text-align:center}
-.ending h2{font-size:clamp(32px,6vw,64px);font-weight:300;color:rgba(255,255,255,0.7);letter-spacing:8px;line-height:1.8}
-.ending h2 span{color:rgba(201,168,124,0.6)}
-.ending .end-line{width:40px;height:1px;background:rgba(201,168,124,0.2);margin:40px auto}
-.ending .end-sub{font-size:11px;letter-spacing:4px;color:rgba(255,255,255,0.12);line-height:2.2}
-
-/* ── Photo Modal ─────────────── */
-#modal{position:fixed;inset:0;z-index:100;background:rgba(12,10,15,0.95);backdrop-filter:blur(40px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all 0.7s cubic-bezier(.23,1,.32,1);cursor:pointer}
-#modal.open{opacity:1;visibility:visible}
-#modal img{max-width:80vw;max-height:80vh;object-fit:contain;transform:scale(0.92);transition:transform 0.7s cubic-bezier(.23,1,.32,1);border-radius:2px}
-#modal.open img{transform:scale(1)}
-#modal .m-cap{text-align:center;margin-top:24px;position:absolute;bottom:max(5vh,30px);left:50%;transform:translateX(-50%)}
-#modal .m-cap h3{font-size:18px;font-weight:300;letter-spacing:4px;color:rgba(255,255,255,0.6)}
-#modal .m-cap p{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.15);margin-top:8px}
-
-/* ── Fade-in animation ───────── */
-.reveal{opacity:0;transform:translateY(30px);transition:opacity 1.2s cubic-bezier(.23,1,.32,1),transform 1.2s cubic-bezier(.23,1,.32,1)}
-.reveal.visible{opacity:1;transform:translateY(0)}
-.reveal-delay-1{transition-delay:0.15s}
-.reveal-delay-2{transition-delay:0.3s}
-.reveal-delay-3{transition-delay:0.45s}
-.reveal-delay-4{transition-delay:0.6s}
+/* ── Scroll Container ────────── */
+#scroll-container{position:relative;z-index:2;width:100%}
 </style>
 </head>
 <body>
 
 <!-- Loading -->
 <div id="loader">
-  <div class="l-line" id="l-line"></div>
-  <div class="l-text" id="l-text">JYM & WTF</div>
+  <div class="l-icon">🌸</div>
+  <div class="l-title">BLOSSOMING</div>
+  <div class="l-bar"><div class="l-fill" id="l-fill"></div></div>
+  <div class="l-pct" id="l-pct">0%</div>
+  <button class="l-enter" id="l-enter">Enter Experience</button>
 </div>
 
 <!-- BGM -->
-<button id="bgm-btn" aria-label="Toggle music">
-  <div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-</button>
+<button id="bgm-btn"><div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></button>
 
-<!-- Progress -->
-<div class="progress-track"><div class="progress-fill" id="progress"></div></div>
-
-<!-- Brand -->
-<div class="brand">
-  <div class="brand-name">JYM & WTF</div>
-  <div class="brand-sub">Eternal Blossoming</div>
-</div>
-
-<!-- Scroll Cue -->
-<div class="scroll-cue" id="scroll-cue">
-  <div class="sc-line"></div>
-  <div class="sc-text">scroll</div>
-</div>
-
-<!-- 3D Canvas -->
+<!-- Canvas -->
 <canvas id="c"></canvas>
-<div class="overlay" id="vignette"></div>
 
-<!-- Content -->
-<div class="content">
+<!-- Scroll -->
+<div id="scroll-container"></div>
 
-  <!-- Section 0: Intro -->
-  <div class="section intro">
-    <div class="year">FOREVER</div>
-    <div class="reveal">
-      <h1>花开<em>半夏</em><br/>岁月<em>静好</em></h1>
-      <div class="sub">A story told in petals</div>
-      <div class="divider"></div>
-    </div>
-  </div>
-
-  <!-- Section 1: Gallery Row 1 -->
-  <div class="section">
-    <div class="gallery-wrap">
-      <div class="gallery-row">
-        <div class="photo tall reveal" data-idx="0"><img src="photos/01.jpeg" alt="" loading="lazy"/><div class="ph-border"></div><div class="ph-num">01</div></div>
-        <div class="photo wide reveal reveal-delay-1" data-idx="1"><img src="photos/02.jpeg" alt="" loading="lazy"/><div class="ph-border"></div><div class="ph-num">02</div></div>
-        <div class="photo square reveal reveal-delay-2" data-idx="2"><img src="photos/03.jpeg" alt="" loading="lazy"/><div class="ph-border"></div><div class="ph-num">03</div></div>
-      </div>
-      <div class="gallery-row reverse">
-        <div class="photo wide reveal" data-idx="3"><img src="photos/04.png" alt="" loading="lazy"/><div class="ph-border"></div><div class="ph-num">04</div></div>
-        <div class="photo medium reveal reveal-delay-1" data-idx="4"><img src="photos/06.png" alt="" loading="lazy"/><div class="ph-border"></div><div class="ph-num">05</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Section 2: Poetry -->
-  <div class="section poetry">
-    <div class="p-bg">樱花</div>
-    <div class="reveal">
-      <div class="p-line">世人谓花，花谓世人</div>
-      <div class="p-line reveal reveal-delay-1"><em>一瓣飘零，便是整个春天</em></div>
-      <div class="p-line reveal reveal-delay-2">我在树下等你</div>
-      <div class="p-line reveal reveal-delay-3">你在花中笑</div>
-      <div class="p-note reveal reveal-delay-4">— 写给 JYM & WTF —</div>
-    </div>
-  </div>
-
-  <!-- Section 3: Gallery Row 2 -->
-  <div class="section">
-    <div class="gallery-wrap">
-      <div class="gallery-row">
-        <div class="photo square reveal" data-idx="5"><img src="photos/07.jpeg" alt="" loading="lazy"/><div class="ph-border"></div><div class="ph-num">06</div></div>
-        <div class="photo tall reveal reveal-delay-1" data-idx="6"><img src="photos/08.jpeg" alt="" loading="lazy"/><div class="ph-border"></div><div class="ph-num">07</div></div>
-        <div class="photo wide reveal reveal-delay-2" data-idx="7"><img src="photos/09.jpeg" alt="" loading="lazy"/><div class="ph-border"></div><div class="ph-num">08</div></div>
-      </div>
-      <div class="gallery-row reverse">
-        <div class="photo medium reveal" data-idx="8"><img src="photos/10.jpeg" alt="" loading="lazy"/><div class="ph-border"></div><div class="ph-num">09</div></div>
-        <div class="photo tall reveal reveal-delay-1" data-idx="9"><img src="photos/11.jpeg" alt="" loading="lazy"/><div class="ph-border"></div><div class="ph-num">10</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Section 4: Ending -->
-  <div class="section ending">
-    <div class="reveal">
-      <h2>JYM <span>&</span> WTF</h2>
-      <div class="end-line"></div>
-      <div class="end-sub">
-        花开一瞬，美了永恒<br/>
-        This moment, forever
-      </div>
-    </div>
-  </div>
-
+<!-- Fixed UI -->
+<div class="ui brand">
+  <div class="logo">JYM & WTF</div>
+  <div class="sub">Eternal Blossoming · 365 Day</div>
+</div>
+<div class="ui status">
+  <div class="phase" id="ui-phase">ARRIVAL</div>
+  <div class="pct" id="ui-pct">0%</div>
+</div>
+<div class="ui info-bl">
+  <div class="date">OUR PHOTOS · FOREVER</div>
+  <div class="desc" id="ui-desc"></div>
+</div>
+<div class="ui info-br">
+  <div class="hint">Scroll to explore</div>
 </div>
 
-<!-- Modal -->
-<div id="modal">
-  <img id="m-img" src=""/>
-  <div class="m-cap">
-    <h3 id="m-title"></h3>
-    <p id="m-desc"></p>
-  </div>
+<!-- Nav Dots -->
+<div class="nav-dots" id="nav-dots"></div>
+
+<!-- Center Text -->
+<div class="center-text" id="center-text">
+  <div class="ct-main" id="ct-main"></div>
+  <div class="ct-sub" id="ct-sub"></div>
+  <button class="ct-btn" id="ct-btn" style="display:none"></button>
 </div>
+
+<!-- Scroll Hint -->
+<div class="scroll-hint" id="scroll-hint">
+  <div class="sh-t">Scroll to begin</div>
+  <div class="sh-l"></div>
+</div>
+
+<!-- Photo Frames (positioned by JS) -->
+<div class="photo-frame" id="pf0"><div class="pf-border"></div><img src="photos/01.jpeg"/></div>
+<div class="photo-frame" id="pf1"><div class="pf-border"></div><img src="photos/02.jpeg"/></div>
+<div class="photo-frame" id="pf2"><div class="pf-border"></div><img src="photos/03.jpeg"/></div>
+<div class="photo-frame" id="pf3"><div class="pf-border"></div><img src="photos/04.png"/></div>
+<div class="photo-frame" id="pf4"><div class="pf-border"></div><img src="photos/06.png"/></div>
+<div class="photo-frame" id="pf5"><div class="pf-border"></div><img src="photos/07.jpeg"/></div>
+<div class="photo-frame" id="pf6"><div class="pf-border"></div><img src="photos/08.jpeg"/></div>
+<div class="photo-frame" id="pf7"><div class="pf-border"></div><img src="photos/09.jpeg"/></div>
+<div class="photo-frame" id="pf8"><div class="pf-border"></div><img src="photos/10.jpeg"/></div>
+<div class="photo-frame" id="pf9"><div class="pf-border"></div><img src="photos/11.jpeg"/></div>
 
 <script type="importmap">
 {"imports":{"three":"https://unpkg.com/three@0.164.1/build/three.module.js","three/addons/":"https://unpkg.com/three@0.164.1/examples/jsm/"}}
@@ -248,416 +157,443 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-/* ═══════ BGM ═══════ */
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx, gainNode, bgmPlaying = false;
-const bgmBtn = document.getElementById('bgm-btn');
+/* ═══════════════════════════════════════
+   SECTIONS — matching original video flow
+   ═══════════════════════════════════════ */
+const SECTIONS = [
+  { phase:'ARRIVAL', title:'在最初', sub:'是种子', desc:'万物始于一粒微小的种子，沉睡在大地的怀抱中。', photos:[], photoPos:null },
+  { phase:'ROOTS', title:'扎根', sub:'向深处', desc:'根系在黑暗中延伸，汲取生命的养分。', photos:[0,1], photoPos:'left' },
+  { phase:'GROWTH', title:'生长', sub:'向天空', desc:'枝干向着阳光伸展，每一片叶子都在诉说生命的故事。', photos:[2,3,4], photoPos:'right' },
+  { phase:'BLOSSOM', title:'花开', sub:'满园春', desc:'万千花瓣在风中起舞，整个世界都沉浸在永恒的绽放中。', photos:[5,6,7], photoPos:'left', btn:'Enter the Garden' },
+  { phase:'ETERNAL', title:'永恒', sub:'这一刻', desc:'花开一瞬，却美了整个永恒。', photos:[8,9], photoPos:'center' },
+];
+const SEC_H = window.innerHeight * 2.5;
+const TOTAL_H = SEC_H * SECTIONS.length;
 
-function createBGM() {
-  audioCtx = new AudioCtx();
+/* ═══════════════════════════════════════
+   SCROLL CONTAINER
+   ═══════════════════════════════════════ */
+document.getElementById('scroll-container').style.height = TOTAL_H + 'px';
+
+// Nav dots
+const dotsEl = document.getElementById('nav-dots');
+SECTIONS.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  d.addEventListener('click', () => window.scrollTo({ top: i * SEC_H, behavior: 'smooth' }));
+  dotsEl.appendChild(d);
+});
+
+/* ═══════════════════════════════════════
+   BGM — ambient piano
+   ═══════════════════════════════════════ */
+const bgmBtn = document.getElementById('bgm-btn');
+let audioCtx, gainNode, bgmOn = false;
+function startBGM() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  audioCtx = new AC();
   gainNode = audioCtx.createGain();
   gainNode.gain.value = 0;
   gainNode.connect(audioCtx.destination);
-
-  // Gentle piano-like chords with reverb feel
-  const notes = [
-    // C major 7 voicing
+  const chords = [
     [261.63, 329.63, 392.00, 493.88],
-    // Am7
     [220.00, 261.63, 329.63, 392.00],
-    // F major 7
     [174.61, 220.00, 261.63, 349.23],
-    // G
     [196.00, 246.94, 293.66, 392.00],
   ];
-  const durations = [4, 4, 4, 4];
-  let time = audioCtx.currentTime + 0.1;
-
-  function playChord(freqs, dur, t) {
-    freqs.forEach((f, i) => {
-      const osc = audioCtx.createOscillator();
-      const env = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = f;
-      // Add slight detune for warmth
-      osc.detune.value = (Math.random() - 0.5) * 8;
-      env.gain.setValueAtTime(0, t);
-      env.gain.linearRampToValueAtTime(0.04, t + 0.8);
-      env.gain.exponentialRampToValueAtTime(0.015, t + dur * 0.7);
-      env.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      osc.connect(env);
-      env.connect(gainNode);
-      osc.start(t);
-      osc.stop(t + dur + 0.1);
+  let t = audioCtx.currentTime + 0.1;
+  function loop() {
+    if (!bgmOn) return;
+    chords.forEach((freqs, ci) => {
+      const ct = t + ci * 4;
+      freqs.forEach(f => {
+        const o = audioCtx.createOscillator();
+        const e = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        o.detune.value = (Math.random() - 0.5) * 6;
+        e.gain.setValueAtTime(0, ct);
+        e.gain.linearRampToValueAtTime(0.035, ct + 0.6);
+        e.gain.exponentialRampToValueAtTime(0.012, ct + 2.8);
+        e.gain.exponentialRampToValueAtTime(0.001, ct + 4);
+        o.connect(e); e.connect(gainNode);
+        o.start(ct); o.stop(ct + 4.1);
+      });
+      // high shimmer
+      const s = audioCtx.createOscillator();
+      const se = audioCtx.createGain();
+      s.type = 'sine'; s.frequency.value = freqs[3] * 2;
+      se.gain.setValueAtTime(0, ct);
+      se.gain.linearRampToValueAtTime(0.006, ct + 0.8);
+      se.gain.exponentialRampToValueAtTime(0.001, ct + 3.5);
+      s.connect(se); se.connect(gainNode);
+      s.start(ct); s.stop(ct + 3.6);
     });
-    // Add a high shimmer
-    const shimmer = audioCtx.createOscillator();
-    const shimEnv = audioCtx.createGain();
-    shimmer.type = 'sine';
-    shimmer.frequency.value = freqs[freqs.length - 1] * 2;
-    shimEnv.gain.setValueAtTime(0, t);
-    shimEnv.gain.linearRampToValueAtTime(0.008, t + 1);
-    shimEnv.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    shimmer.connect(shimEnv);
-    shimEnv.connect(gainNode);
-    shimmer.start(t);
-    shimmer.stop(t + dur + 0.1);
+    t += 16;
+    setTimeout(loop, 15000);
   }
-
-  function scheduleLoop() {
-    if (!bgmPlaying) return;
-    const now = audioCtx.currentTime;
-    if (time < now + 2) {
-      for (let i = 0; i < notes.length; i++) {
-        playChord(notes[i], durations[i], time);
-        time += durations[i];
-      }
-    }
-    setTimeout(scheduleLoop, 2000);
-  }
-
-  bgmPlaying = true;
-  gainNode.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 3);
-  scheduleLoop();
-  bgmBtn.classList.add('playing');
+  bgmOn = true;
+  gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 3);
+  loop();
+  bgmBtn.classList.add('on');
 }
-
 bgmBtn.addEventListener('click', () => {
-  if (!audioCtx) { createBGM(); return; }
-  if (bgmPlaying) {
-    bgmPlaying = false;
+  if (!audioCtx) { startBGM(); return; }
+  if (bgmOn) {
+    bgmOn = false;
     gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
-    bgmBtn.classList.remove('playing');
+    bgmBtn.classList.remove('on');
   } else {
-    bgmPlaying = true;
-    gainNode.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 2);
-    bgmBtn.classList.add('playing');
-    // Resume scheduling
-    setTimeout(function loop() {
-      if (!bgmPlaying) return;
-      const now = audioCtx.currentTime;
-      const notes = [
-        [261.63, 329.63, 392.00, 493.88],
-        [220.00, 261.63, 329.63, 392.00],
-        [174.61, 220.00, 261.63, 349.23],
-        [196.00, 246.94, 293.66, 392.00],
-      ];
-      notes.forEach((freqs, i) => {
+    bgmOn = true;
+    gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 2);
+    bgmBtn.classList.add('on');
+    // restart scheduling
+    let t = audioCtx.currentTime + 0.1;
+    const chords = [
+      [261.63, 329.63, 392.00, 493.88],
+      [220.00, 261.63, 329.63, 392.00],
+      [174.61, 220.00, 261.63, 349.23],
+      [196.00, 246.94, 293.66, 392.00],
+    ];
+    function loop() {
+      if (!bgmOn) return;
+      chords.forEach((freqs, ci) => {
+        const ct = t + ci * 4;
         freqs.forEach(f => {
-          const osc = audioCtx.createOscillator();
-          const env = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.value = f;
-          osc.detune.value = (Math.random() - 0.5) * 8;
-          const t = now + i * 4;
-          env.gain.setValueAtTime(0, t);
-          env.gain.linearRampToValueAtTime(0.04, t + 0.8);
-          env.gain.exponentialRampToValueAtTime(0.015, t + 2.8);
-          env.gain.exponentialRampToValueAtTime(0.001, t + 4);
-          osc.connect(env);
-          env.connect(gainNode);
-          osc.start(t);
-          osc.stop(t + 4.1);
+          const o = audioCtx.createOscillator();
+          const e = audioCtx.createGain();
+          o.type = 'sine'; o.frequency.value = f;
+          o.detune.value = (Math.random() - 0.5) * 6;
+          e.gain.setValueAtTime(0, ct);
+          e.gain.linearRampToValueAtTime(0.035, ct + 0.6);
+          e.gain.exponentialRampToValueAtTime(0.012, ct + 2.8);
+          e.gain.exponentialRampToValueAtTime(0.001, ct + 4);
+          o.connect(e); e.connect(gainNode);
+          o.start(ct); o.stop(ct + 4.1);
         });
       });
-      setTimeout(loop, 14000);
-    }, 2000);
+      t += 16;
+      setTimeout(loop, 15000);
+    }
+    loop();
   }
 });
 
-/* ═══════ THREE.JS ═══════ */
+/* ═══════════════════════════════════════
+   THREE.JS — full screen 3D scene
+   ═══════════════════════════════════════ */
 const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.6;
+renderer.toneMappingExposure = 0.7;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0c0a0f);
-scene.fog = new THREE.FogExp2(0x0c0a0f, 0.008);
+scene.background = new THREE.Color(0x050208);
+scene.fog = new THREE.FogExp2(0x050208, 0.012);
 
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
-camera.position.set(0, 4, 20);
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 3, 15);
 
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.3, 0.5, 0.9);
+const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.7, 0.4, 0.85);
 composer.addPass(bloom);
 
-// Lights — warm, soft, romantic
-scene.add(new THREE.AmbientLight(0x1a0f15, 0.4));
-const warm = new THREE.DirectionalLight(0xffeedd, 0.3);
-warm.position.set(3, 10, 5);
-scene.add(warm);
-const pink = new THREE.PointLight(0xc9a87c, 1.2, 40);
-pink.position.set(-5, 6, 0);
-scene.add(pink);
-const rose = new THREE.PointLight(0xff91a4, 0.8, 30);
-rose.position.set(5, 4, -10);
-scene.add(rose);
+// Lights
+scene.add(new THREE.AmbientLight(0x220a15, 0.5));
+const dirLight = new THREE.DirectionalLight(0xffeedd, 0.4);
+dirLight.position.set(5, 15, 5); scene.add(dirLight);
+const pinkLight = new THREE.PointLight(0xff6090, 2.5, 35);
+pinkLight.position.set(-3, 5, 0); scene.add(pinkLight);
+const warmLight = new THREE.PointLight(0xffaa44, 1.5, 25);
+warmLight.position.set(4, 3, -5); scene.add(warmLight);
 
 // Ground
 const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(200, 200),
-  new THREE.MeshStandardMaterial({ color: 0x0f0d12, roughness: 0.95 })
+  new THREE.PlaneGeometry(120, 250),
+  new THREE.MeshStandardMaterial({ color: 0x0a0510, roughness: 0.95 })
 );
-ground.rotation.x = -Math.PI / 2;
-ground.position.y = -0.1;
+ground.rotation.x = -Math.PI / 2; ground.position.y = -0.1; ground.position.z = -60;
 scene.add(ground);
 
-// Subtle path
+// Path
 const pathPts = [];
-for (let i = 0; i < 80; i++) pathPts.push(new THREE.Vector3(Math.sin(i * 0.08) * 3, 0.01, -i * 1.2));
+for (let i = 0; i < 80; i++) pathPts.push(new THREE.Vector3(Math.sin(i * 0.08) * 2.5, 0.02, -i * 1.5));
 const pathCurve = new THREE.CatmullRomCurve3(pathPts);
 scene.add(new THREE.Mesh(
-  new THREE.TubeGeometry(pathCurve, 200, 0.4, 6, false),
-  new THREE.MeshStandardMaterial({ color: 0x161118, roughness: 0.85, emissive: 0x0a0808, emissiveIntensity: 0.1 })
+  new THREE.TubeGeometry(pathCurve, 200, 0.35, 8, false),
+  new THREE.MeshStandardMaterial({ color: 0x150a12, roughness: 0.8, emissive: 0x0a0508, emissiveIntensity: 0.15 })
+));
+scene.add(new THREE.Mesh(
+  new THREE.TubeGeometry(pathCurve, 200, 0.6, 8, false),
+  new THREE.MeshBasicMaterial({ color: 0xff6090, transparent: true, opacity: 0.025 })
 ));
 
-// Trees
+// Trees — original pink cherry blossom style
 function createTree(x, z, s = 1) {
-  const g = new THREE.Group();
-  g.position.set(x, 0, z);
-  g.scale.setScalar(s);
-  // Trunk
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s);
   const tc = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(0, 0, 0),
-    new THREE.Vector3(0.1, 2.5, 0.05),
-    new THREE.Vector3(-0.05, 5, -0.03),
-    new THREE.Vector3(0.08, 7, 0.02),
-    new THREE.Vector3(0, 8.5, 0)
+    new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.15, 2, 0.1),
+    new THREE.Vector3(-0.08, 4.5, -0.05), new THREE.Vector3(0.1, 6.5, 0.04),
+    new THREE.Vector3(0, 8, 0)
   ]);
-  g.add(new THREE.Mesh(
-    new THREE.TubeGeometry(tc, 16, 0.12, 6, false),
-    new THREE.MeshStandardMaterial({ color: 0x2a1a15, roughness: 0.9 })
-  ));
-  // Blossoms — softer, more muted
-  const colors = [0xc9a87c, 0xd4b896, 0xbf9e78, 0xdebfa5, 0xb8956e];
-  for (let i = 0; i < 20; i++) {
-    const geo = new THREE.SphereGeometry(0.6 + Math.random() * 1, 6, 5);
+  g.add(new THREE.Mesh(new THREE.TubeGeometry(tc, 16, 0.13, 6, false),
+    new THREE.MeshStandardMaterial({ color: 0x3a1a15, roughness: 0.9 })));
+  // Branches
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2 + Math.random() * 0.5;
+    const len = 1.5 + Math.random() * 2;
+    const sy = 3 + Math.random() * 3.5;
+    const bc = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, sy, 0),
+      new THREE.Vector3(Math.cos(a) * len * 0.5, sy + 0.5, Math.sin(a) * len * 0.5),
+      new THREE.Vector3(Math.cos(a) * len, sy + 1 + Math.random(), Math.sin(a) * len)
+    ]);
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(bc, 8, 0.05, 6, false),
+      new THREE.MeshStandardMaterial({ color: 0x4a2020, roughness: 0.85 })));
+  }
+  // Blossoms — original vibrant pink
+  const colors = [0xffb7c5, 0xff91a4, 0xffc0cb, 0xff69b4, 0xffd1dc];
+  for (let i = 0; i < 25; i++) {
+    const geo = new THREE.SphereGeometry(0.7 + Math.random() * 1.1, 7, 5);
     const pos = geo.attributes.position;
     for (let j = 0; j < pos.count; j++) {
       const v = new THREE.Vector3().fromBufferAttribute(pos, j);
-      v.x += (Math.random() - 0.5) * 0.3;
-      v.y += (Math.random() - 0.5) * 0.2;
-      v.z += (Math.random() - 0.5) * 0.3;
+      v.x += (Math.random() - 0.5) * 0.35;
+      v.y += (Math.random() - 0.5) * 0.25;
+      v.z += (Math.random() - 0.5) * 0.35;
       pos.setXYZ(j, v.x, v.y, v.z);
     }
     const c = colors[Math.floor(Math.random() * colors.length)];
     g.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-      color: c, roughness: 0.8, transparent: true,
-      opacity: 0.5 + Math.random() * 0.3,
-      emissive: c, emissiveIntensity: 0.05
+      color: c, roughness: 0.7, transparent: true,
+      opacity: 0.55 + Math.random() * 0.35,
+      emissive: c, emissiveIntensity: 0.1
     })).translateX((Math.random() - 0.5) * 5).translateY(5 + Math.random() * 4).translateZ((Math.random() - 0.5) * 5));
   }
   scene.add(g);
 }
-createTree(-8, -8, 1.1);
-createTree(6, -12, 0.8);
-createTree(-12, -25, 1.0);
-createTree(10, -22, 1.2);
-createTree(-4, -38, 0.9);
-createTree(14, -40, 1.0);
-createTree(-10, -55, 1.1);
-createTree(8, -60, 0.9);
+createTree(-7, -6, 1.2); createTree(5, -10, 0.9);
+createTree(-11, -20, 1.0); createTree(9, -18, 1.1);
+createTree(-4, -30, 1.3); createTree(13, -28, 0.8);
+createTree(-9, -42, 1.0); createTree(7, -48, 1.2);
+createTree(-13, -58, 0.9); createTree(11, -62, 1.1);
 
-// Floating petals — fewer, more elegant
-const PC = 1500;
+// Petals — original pink
+const PC = 3000;
 const pGeo = new THREE.BufferGeometry();
-const pPos = new Float32Array(PC * 3);
-const pVel = new Float32Array(PC * 3);
-const pSz = new Float32Array(PC);
-const pPh = new Float32Array(PC);
-const pCl = new Float32Array(PC * 3);
-const palette = [
-  new THREE.Color(0xc9a87c),
-  new THREE.Color(0xd4b896),
-  new THREE.Color(0xbf9e78),
-  new THREE.Color(0xdebfa5),
-  new THREE.Color(0xb8956e),
-];
+const pPos = new Float32Array(PC * 3), pVel = new Float32Array(PC * 3);
+const pSz = new Float32Array(PC), pPh = new Float32Array(PC), pCl = new Float32Array(PC * 3);
+const pPal = [new THREE.Color(0xffb7c5), new THREE.Color(0xff91a4), new THREE.Color(0xffc0cb), new THREE.Color(0xff69b4), new THREE.Color(0xffd1dc)];
 for (let i = 0; i < PC; i++) {
   const i3 = i * 3;
-  pPos[i3] = (Math.random() - 0.5) * 40;
-  pPos[i3 + 1] = Math.random() * 18;
-  pPos[i3 + 2] = Math.random() * -80;
-  pVel[i3] = (Math.random() - 0.5) * 0.008;
-  pVel[i3 + 1] = -0.005 - Math.random() * 0.01;
-  pVel[i3 + 2] = (Math.random() - 0.5) * 0.005;
-  pSz[i] = 2 + Math.random() * 4;
-  pPh[i] = Math.random() * Math.PI * 2;
-  const c = palette[Math.floor(Math.random() * palette.length)];
+  pPos[i3] = (Math.random() - 0.5) * 45; pPos[i3 + 1] = Math.random() * 22; pPos[i3 + 2] = Math.random() * -90;
+  pVel[i3] = (Math.random() - 0.5) * 0.012; pVel[i3 + 1] = -0.006 - Math.random() * 0.012; pVel[i3 + 2] = (Math.random() - 0.5) * 0.008;
+  pSz[i] = 2 + Math.random() * 5; pPh[i] = Math.random() * Math.PI * 2;
+  const c = pPal[Math.floor(Math.random() * pPal.length)];
   pCl[i3] = c.r; pCl[i3 + 1] = c.g; pCl[i3 + 2] = c.b;
 }
 pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
 pGeo.setAttribute('size', new THREE.BufferAttribute(pSz, 1));
 pGeo.setAttribute('color', new THREE.BufferAttribute(pCl, 3));
-const petalMat = new THREE.ShaderMaterial({
-  vertexShader: `
-    attribute float size;
-    attribute vec3 color;
-    varying vec3 vC;
-    varying float vA;
-    void main(){
-      vC = color;
-      vec4 mv = modelViewMatrix * vec4(position, 1.0);
-      gl_PointSize = size * (180.0 / -mv.z);
-      gl_Position = projectionMatrix * mv;
-      vA = smoothstep(90.0, 10.0, -mv.z);
-    }
-  `,
-  fragmentShader: `
-    varying vec3 vC;
-    varying float vA;
-    void main(){
-      vec2 u = gl_PointCoord - 0.5;
-      float d = length(u);
-      if(d > 0.5) discard;
-      float a = smoothstep(0.5, 0.08, d) * vA * 0.45;
-      gl_FragColor = vec4(vC, a);
-    }
-  `,
+scene.add(new THREE.Points(pGeo, new THREE.ShaderMaterial({
+  vertexShader: `attribute float size;attribute vec3 color;varying vec3 vC;varying float vA;
+    void main(){vC=color;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=size*(200.0/-mv.z);gl_Position=projectionMatrix*mv;vA=smoothstep(90.0,10.0,-mv.z);}`,
+  fragmentShader: `varying vec3 vC;varying float vA;
+    void main(){vec2 u=gl_PointCoord-0.5;float d=length(u);if(d>0.5)discard;float a=smoothstep(0.5,0.08,d)*vA*0.6;gl_FragColor=vec4(vC,a);}`,
   transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
-});
-scene.add(new THREE.Points(pGeo, petalMat));
+})));
 
-// Fireflies — golden, sparse
-const FC = 80;
+// Fireflies
+const FC = 120;
 const fGeo = new THREE.BufferGeometry();
-const fPos = new Float32Array(FC * 3);
-const fSz = new Float32Array(FC);
+const fPos = new Float32Array(FC * 3), fSz = new Float32Array(FC);
 for (let i = 0; i < FC; i++) {
-  fPos[i * 3] = (Math.random() - 0.5) * 35;
-  fPos[i * 3 + 1] = 1 + Math.random() * 8;
-  fPos[i * 3 + 2] = Math.random() * -70;
-  fSz[i] = 1 + Math.random() * 2;
+  fPos[i * 3] = (Math.random() - 0.5) * 35; fPos[i * 3 + 1] = 1 + Math.random() * 9; fPos[i * 3 + 2] = Math.random() * -80;
+  fSz[i] = 1.5 + Math.random() * 2.5;
 }
 fGeo.setAttribute('position', new THREE.BufferAttribute(fPos, 3));
 fGeo.setAttribute('size', new THREE.BufferAttribute(fSz, 1));
 const ffMat = new THREE.ShaderMaterial({
-  vertexShader: `
-    attribute float size;
-    varying float vA;
-    uniform float t;
-    void main(){
-      vec3 p = position;
-      p.x += sin(t * 0.3 + position.z * 0.15) * 0.4;
-      p.y += sin(t * 0.5 + position.x * 0.1) * 0.2;
-      vec4 mv = modelViewMatrix * vec4(p, 1.0);
-      gl_PointSize = size * (120.0 / -mv.z);
-      gl_Position = projectionMatrix * mv;
-      float fl = sin(t * 2.0 + position.x * 6.0) * 0.5 + 0.5;
-      vA = fl * smoothstep(60.0, 5.0, -mv.z) * 0.6;
-    }
-  `,
-  fragmentShader: `
-    varying float vA;
-    void main(){
-      float d = length(gl_PointCoord - 0.5);
-      if(d > 0.5) discard;
-      float g = exp(-d * 8.0);
-      vec3 c = mix(vec3(1.0, 0.85, 0.5), vec3(0.8, 0.7, 0.4), g);
-      gl_FragColor = vec4(c, g * vA);
-    }
-  `,
+  vertexShader: `attribute float size;varying float vA;uniform float t;
+    void main(){vec3 p=position;p.x+=sin(t*0.35+position.z*0.2)*0.5;p.y+=sin(t*0.55+position.x*0.15)*0.3;
+    vec4 mv=modelViewMatrix*vec4(p,1.0);gl_PointSize=size*(150.0/-mv.z);gl_Position=projectionMatrix*mv;
+    float fl=sin(t*2.2+position.x*7.0)*0.5+0.5;vA=fl*smoothstep(65.0,5.0,-mv.z)*0.65;}`,
+  fragmentShader: `varying float vA;
+    void main(){float d=length(gl_PointCoord-0.5);if(d>0.5)discard;float g=exp(-d*7.0);
+    vec3 c=mix(vec3(1.0,0.9,0.5),vec3(0.5,1.0,0.7),g);gl_FragColor=vec4(c,g*vA);}`,
   transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   uniforms: { t: { value: 0 } }
 });
 scene.add(new THREE.Points(fGeo, ffMat));
 
+// Lanterns
+const lanterns = [];
+function createLantern(x, y, z) {
+  const g = new THREE.Group(); g.position.set(x, y, z);
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.2, 0.5, 8),
+    new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0xff2200, emissiveIntensity: 0.25, transparent: true, opacity: 0.75 })));
+  g.add(new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.015, 8, 16),
+    new THREE.MeshStandardMaterial({ color: 0xaa8833, metalness: 0.8 })).translateY(0.25));
+  g.add(new THREE.PointLight(0xff6622, 0.6, 7));
+  scene.add(g); return g;
+}
+for (let i = 0; i < 15; i++) {
+  const side = i % 2 === 0 ? -1 : 1;
+  lanterns.push(createLantern(side * (2.5 + Math.random()) + Math.sin(-i * 5 * 0.1) * 1.5, 2.5 + Math.random() * 0.4, -i * 5 - 3));
+}
+
+// Stars
+const SC = 500;
+const sGeo = new THREE.BufferGeometry();
+const sPos = new Float32Array(SC * 3);
+for (let i = 0; i < SC; i++) {
+  const th = Math.random() * Math.PI * 2, ph = Math.random() * Math.PI * 0.35, r = 65 + Math.random() * 25;
+  sPos[i * 3] = r * Math.sin(ph) * Math.cos(th);
+  sPos[i * 3 + 1] = r * Math.cos(ph) + 12;
+  sPos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th) - 35;
+}
+sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+scene.add(new THREE.Points(sGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.1, transparent: true, opacity: 0.4 })));
+
 // Camera path
 const camPath = new THREE.CatmullRomCurve3([
-  new THREE.Vector3(0, 4, 20),
-  new THREE.Vector3(-1, 4.5, 10),
-  new THREE.Vector3(0.5, 5, 0),
-  new THREE.Vector3(-0.5, 4, -12),
-  new THREE.Vector3(0.3, 5, -25),
-  new THREE.Vector3(-0.8, 4.5, -38),
-  new THREE.Vector3(0, 5.5, -50),
-  new THREE.Vector3(0.5, 4, -62),
-  new THREE.Vector3(-0.3, 5, -75),
+  new THREE.Vector3(0, 3, 15),
+  new THREE.Vector3(-0.8, 3.5, 6),
+  new THREE.Vector3(0.6, 4, -4),
+  new THREE.Vector3(-0.4, 3.5, -14),
+  new THREE.Vector3(0.5, 4.5, -24),
+  new THREE.Vector3(-0.8, 3.5, -34),
+  new THREE.Vector3(0.3, 5, -44),
+  new THREE.Vector3(-0.5, 4, -54),
+  new THREE.Vector3(0.2, 4.5, -65),
+  new THREE.Vector3(0, 5, -78),
 ]);
 
-/* ═══════ SCROLL ═══════ */
-const totalH = document.querySelector('.content').scrollHeight;
-let progress = 0;
+/* ═══════════════════════════════════════
+   SCROLL STATE
+   ═══════════════════════════════════════ */
+const state = { progress: 0, section: 0 };
 function updateScroll() {
-  const max = totalH - window.innerHeight;
-  progress = Math.max(0, Math.min(1, window.scrollY / max));
+  const max = TOTAL_H - window.innerHeight;
+  state.progress = Math.max(0, Math.min(1, window.scrollY / max));
+  state.section = Math.min(SECTIONS.length - 1, Math.floor(window.scrollY / SEC_H));
 }
 window.addEventListener('scroll', updateScroll, { passive: true });
 
-// Progress bar
-const progressEl = document.getElementById('progress');
-// Scroll cue
-const scrollCue = document.getElementById('scroll-cue');
+/* ═══════════════════════════════════════
+   UI UPDATES
+   ═══════════════════════════════════════ */
+const uiPhase = document.getElementById('ui-phase');
+const uiPct = document.getElementById('ui-pct');
+const uiDesc = document.getElementById('ui-desc');
+const centerText = document.getElementById('center-text');
+const ctMain = document.getElementById('ct-main');
+const ctSub = document.getElementById('ct-sub');
+const ctBtn = document.getElementById('ct-btn');
+const scrollHint = document.getElementById('scroll-hint');
+const navDots = dotsEl.querySelectorAll('.nav-dot');
+const photoFrames = [];
+for (let i = 0; i < 10; i++) photoFrames.push(document.getElementById('pf' + i));
 
-/* ═══════ REVEAL ON SCROLL ═══════ */
-const reveals = document.querySelectorAll('.reveal');
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.15 });
-reveals.forEach(el => observer.observe(el));
+let lastSec = -1, txtTimer = null;
 
-/* ═══════ PHOTO MODAL ═══════ */
-const PHOTOS = [
-  { src: 'photos/01.jpeg', title: '我们的剪影', desc: '夕阳下的轮廓' },
-  { src: 'photos/02.jpeg', title: '城市与你', desc: '万家灯火' },
-  { src: 'photos/03.jpeg', title: '花海', desc: '比花还美' },
-  { src: 'photos/04.png', title: 'Cosmos', desc: '粉色心事' },
-  { src: 'photos/06.png', title: '向阳', desc: '像阳光洒满大地' },
-  { src: 'photos/07.jpeg', title: '毛孩子', desc: '我们的小可爱' },
-  { src: 'photos/08.jpeg', title: '古韵', desc: '屋檐下的未来' },
-  { src: 'photos/09.jpeg', title: '追光', desc: '追逐落日' },
-  { src: 'photos/10.jpeg', title: '江畔', desc: '流过的时光' },
-  { src: 'photos/11.jpeg', title: '秋千', desc: '荡进心里' },
-];
-const modal = document.getElementById('modal');
-const mImg = document.getElementById('m-img');
-const mTitle = document.getElementById('m-title');
-const mDesc = document.getElementById('m-desc');
-document.querySelectorAll('.photo').forEach(el => {
-  el.addEventListener('click', e => {
-    e.stopPropagation();
-    const idx = parseInt(el.dataset.idx);
-    const p = PHOTOS[idx];
-    mImg.src = p.src;
-    mTitle.textContent = p.title;
-    mDesc.textContent = p.desc;
-    modal.classList.add('open');
+function positionPhotoFrames(sec) {
+  // Hide all
+  photoFrames.forEach(f => f.classList.remove('show'));
+  const s = SECTIONS[sec];
+  if (!s.photos.length) return;
+  s.photos.forEach((pi, i) => {
+    const el = photoFrames[pi];
+    if (!el) return;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    let w, h, x, y;
+    if (s.photoPos === 'left') {
+      w = vw * 0.22; h = w * 1.3;
+      x = vw * 0.06 + i * (w + 16);
+      y = vh * 0.5 - h * 0.5 + (i % 2 === 0 ? -20 : 20);
+    } else if (s.photoPos === 'right') {
+      w = vw * 0.2; h = w * 1.2;
+      x = vw * 0.55 + i * (w + 14);
+      y = vh * 0.5 - h * 0.5 + (i % 2 === 0 ? -15 : 15);
+    } else {
+      w = vw * 0.25; h = w * 1.1;
+      x = vw * 0.5 - (s.photos.length * (w + 14)) / 2 + i * (w + 14);
+      y = vh * 0.52 - h * 0.5;
+    }
+    el.style.cssText = `width:${w}px;height:${h}px;left:${x}px;top:${y}px;`;
+    setTimeout(() => el.classList.add('show'), 100 + i * 120);
   });
-});
-modal.addEventListener('click', () => modal.classList.remove('open'));
+}
 
-/* ═══════ ANIMATE ═══════ */
+function updateUI() {
+  const p = state.progress;
+  const sec = state.section;
+  uiPct.textContent = Math.round(p * 100) + '%';
+
+  if (sec !== lastSec) {
+    lastSec = sec;
+    const s = SECTIONS[sec];
+    uiPhase.textContent = s.phase;
+    uiDesc.textContent = s.desc;
+
+    // Nav dots
+    navDots.forEach((d, i) => d.classList.toggle('active', i === sec));
+
+    // Center text
+    centerText.classList.remove('show');
+    clearTimeout(txtTimer);
+    txtTimer = setTimeout(() => {
+      ctMain.textContent = s.title + '，' + s.sub;
+      ctSub.textContent = s.desc;
+      if (s.btn) {
+        ctBtn.textContent = s.btn;
+        ctBtn.style.display = 'block';
+        ctBtn.onclick = () => window.scrollTo({ top: (sec + 1) * SEC_H, behavior: 'smooth' });
+      } else {
+        ctBtn.style.display = 'none';
+      }
+      centerText.classList.add('show');
+    }, 350);
+
+    // Photo frames
+    positionPhotoFrames(sec);
+  }
+
+  scrollHint.style.opacity = p > 0.01 ? Math.max(0, 1 - p * 25) : 1;
+}
+
+/* ═══════════════════════════════════════
+   ANIMATE
+   ═══════════════════════════════════════ */
 const clock = new THREE.Clock();
 
 function animate() {
   requestAnimationFrame(animate);
   const t = clock.getElapsedTime();
+  const p = state.progress;
 
-  // Camera
-  const cp = camPath.getPointAt(progress);
-  const cl = camPath.getPointAt(Math.min(1, progress + 0.03));
-  camera.position.lerp(cp, 0.03);
-  const dir = new THREE.Vector3();
-  camera.getWorldDirection(dir);
+  // Camera along path
+  const cp = camPath.getPointAt(p);
+  const cl = camPath.getPointAt(Math.min(1, p + 0.03));
+  camera.position.lerp(cp, 0.04);
+  const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
   const tgt = cl.clone().sub(cp).normalize();
-  dir.lerp(tgt, 0.03);
-  camera.lookAt(camera.position.clone().add(dir.multiplyScalar(15)));
+  dir.lerp(tgt, 0.04);
+  camera.lookAt(camera.position.clone().add(dir.multiplyScalar(12)));
 
   // Petals
   const pp = pGeo.attributes.position.array;
   for (let i = 0; i < PC; i++) {
     const i3 = i * 3;
-    pp[i3] += pVel[i3] + Math.sin(t * 0.3 + pPh[i]) * 0.002;
+    pp[i3] += pVel[i3] + Math.sin(t * 0.4 + pPh[i]) * 0.003;
     pp[i3 + 1] += pVel[i3 + 1];
     pp[i3 + 2] += pVel[i3 + 2];
     if (pp[i3 + 1] < -1) {
-      pp[i3] = (Math.random() - 0.5) * 40;
-      pp[i3 + 1] = 15 + Math.random() * 5;
-      pp[i3 + 2] = camera.position.z - 20 + Math.random() * -40;
+      pp[i3] = (Math.random() - 0.5) * 45;
+      pp[i3 + 1] = 16 + Math.random() * 6;
+      pp[i3 + 2] = camera.position.z - 20 + Math.random() * -45;
     }
   }
   pGeo.attributes.position.needsUpdate = true;
@@ -665,29 +601,50 @@ function animate() {
   // Fireflies
   ffMat.uniforms.t.value = t;
 
-  // Lights breathe
-  pink.intensity = 1.2 + Math.sin(t * 0.3) * 0.3;
-  rose.intensity = 0.8 + Math.sin(t * 0.4 + 1) * 0.2;
+  // Lanterns sway
+  lanterns.forEach((l, i) => {
+    l.rotation.z = Math.sin(t * 0.4 + i * 2) * 0.04;
+    l.children[2].intensity = 0.5 + Math.sin(t * 1.6 + i * 3) * 0.25;
+  });
+
+  // Lights
+  pinkLight.intensity = 2.5 + Math.sin(t * 0.4) * 0.5;
+  pinkLight.position.x = -3 + Math.sin(t * 0.2) * 2;
+  warmLight.intensity = 1.5 + Math.sin(t * 0.55 + 1) * 0.4;
 
   // Bloom
-  bloom.strength = 0.2 + progress * 0.4;
+  bloom.strength = 0.5 + p * 0.7;
+  scene.fog.density = 0.012 - p * 0.004;
 
-  // UI
-  progressEl.style.width = (progress * 100) + '%';
-  scrollCue.style.opacity = progress > 0.01 ? Math.max(0, 1 - progress * 30) : 1;
-
+  updateUI();
   composer.render();
 }
 
-/* ═══════ INIT ═══════ */
-setTimeout(() => {
-  document.getElementById('l-line').classList.add('grow');
-  document.getElementById('l-text').classList.add('show');
-}, 100);
-setTimeout(() => {
-  document.getElementById('loader').classList.add('done');
+/* ═══════════════════════════════════════
+   LOADING
+   ═══════════════════════════════════════ */
+const lFill = document.getElementById('l-fill');
+const lPct = document.getElementById('l-pct');
+const lEnter = document.getElementById('l-enter');
+let loadProg = 0;
+const loadInt = setInterval(() => {
+  loadProg += Math.random() * 12 + 6;
+  if (loadProg >= 100) {
+    loadProg = 100; clearInterval(loadInt);
+    lFill.style.width = '100%'; lPct.textContent = '100%';
+    lEnter.classList.add('show');
+  } else {
+    lFill.style.width = loadProg + '%';
+    lPct.textContent = Math.round(loadProg) + '%';
+  }
+}, 200);
+
+lEnter.addEventListener('click', () => {
+  document.getElementById('loader').classList.add('hide');
   bgmBtn.classList.add('show');
-}, 2500);
+  // Auto-start BGM
+  setTimeout(() => { if (!audioCtx) startBGM(); }, 500);
+});
 
 updateScroll();
 animate();
@@ -697,6 +654,7 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   composer.setSize(window.innerWidth, window.innerHeight);
+  if (lastSec >= 0) positionPhotoFrames(lastSec);
 });
 </script>
 </body>
