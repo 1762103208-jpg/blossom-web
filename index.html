@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ETERNAL BLOSSOMING</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400;600&family=Inter:wght@200;300;400;500&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      background:#000; color:#fff;
+      font-family:'Inter','Noto Serif SC',sans-serif;
+      overflow-x:hidden;
+      cursor:default;
+    }
+    ::selection{background:rgba(255,100,150,0.3)}
+    ::-webkit-scrollbar{width:0;background:transparent}
+    /* ── Loading ─────────────────── */
+    #loader{
+      position:fixed;inset:0;z-index:9999;
+      background:#000;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      transition:opacity 1s,visibility 1s;
+    }
+    #loader.hide{opacity:0;visibility:hidden;pointer-events:none}
+    #loader .l-title{
+      font-size:11px;letter-spacing:8px;color:rgba(255,255,255,0.4);
+      text-transform:uppercase;margin-bottom:40px;
+    }
+    #loader .l-bar{width:200px;height:1px;background:rgba(255,255,255,0.1);overflow:hidden}
+    #loader .l-fill{width:0%;height:100%;background:rgba(255,120,170,0.6);transition:width 0.3s}
+    #loader .l-pct{margin-top:16px;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:4px}
+    /* ── Canvas ──────────────────── */
+    #three-canvas{position:fixed;inset:0;z-index:1}
+    /* ── Scroll Container ────────── */
+    #scroll-container{
+      position:relative;z-index:2;
+      width:100%;
+      /* Height set by JS based on section count */
+    }
+    /* ── Fixed UI ────────────────── */
+    .ui-layer{position:fixed;z-index:10;pointer-events:none}
+    /* Top-left brand */
+    .brand{
+      top:32px;left:40px;
+    }
+    .brand .logo{
+      font-size:28px;font-weight:600;letter-spacing:12px;
+      color:rgba(255,255,255,0.9);
+    }
+    .brand .sub{
+      font-size:9px;letter-spacing:5px;color:rgba(255,255,255,0.3);
+      text-transform:uppercase;margin-top:6px;
+    }
+    /* Top-right status */
+    .status{
+      top:32px;right:40px;text-align:right;
+    }
+    .status .phase{
+      font-size:10px;letter-spacing:4px;color:rgba(255,255,255,0.4);
+      text-transform:uppercase;
+    }
+    .status .progress{
+      font-size:24px;font-weight:200;color:rgba(255,255,255,0.6);
+      margin-top:4px;font-variant-numeric:tabular-nums;
+    }
+    /* Bottom-left info */
+    .info-bl{
+      bottom:40px;left:40px;
+    }
+    .info-bl .date{
+      font-size:10px;letter-spacing:4px;color:rgba(255,255,255,0.3);
+      text-transform:uppercase;
+    }
+    .info-bl .desc{
+      font-size:13px;color:rgba(255,255,255,0.5);margin-top:8px;
+      max-width:300px;line-height:1.8;letter-spacing:1px;
+    }
+    /* Bottom-right hint */
+    .info-br{
+      bottom:40px;right:40px;text-align:right;
+    }
+    .info-br .hint{
+      font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.2);
+      text-transform:uppercase;
+    }
+    /* ── Center Text Overlay ─────── */
+    .center-text{
+      position:fixed;top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      z-index:10;pointer-events:none;
+      text-align:center;
+      opacity:0;transition:opacity 0.8s;
+    }
+    .center-text.show{opacity:1}
+    .center-text .ct-main{
+      font-family:'Noto Serif SC',serif;
+      font-size:clamp(28px,5vw,56px);font-weight:200;
+      color:rgba(255,255,255,0.9);
+      line-height:1.6;letter-spacing:4px;
+      text-shadow:0 0 40px rgba(255,100,150,0.2);
+    }
+    .center-text .ct-sub{
+      font-size:11px;letter-spacing:6px;color:rgba(255,255,255,0.3);
+      text-transform:uppercase;margin-top:20px;
+    }
+    /* ── Scroll Hint ─────────────── */
+    .scroll-hint{
+      position:fixed;bottom:40px;left:50%;transform:translateX(-50%);
+      z-index:10;pointer-events:none;
+      text-align:center;
+      animation:scrollFloat 2s ease-in-out infinite;
+    }
+    .scroll-hint .sh-text{
+      font-size:10px;letter-spacing:5px;color:rgba(255,255,255,0.3);
+      text-transform:uppercase;
+    }
+    .scroll-hint .sh-arrow{
+      width:1px;height:30px;background:linear-gradient(to bottom,rgba(255,255,255,0.3),transparent);
+      margin:10px auto 0;
+    }
+    @keyframes scrollFloat{
+      0%,100%{transform:translateX(-50%) translateY(0)}
+      50%{transform:translateX(-50%) translateY(8px)}
+    }
+    /* ── Modal ───────────────────── */
+    #photo-modal{
+      position:fixed;inset:0;z-index:100;
+      background:rgba(0,0,0,0.85);
+      backdrop-filter:blur(20px);
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;visibility:hidden;
+      transition:opacity 0.5s,visibility 0.5s;
+      pointer-events:auto;cursor:pointer;
+    }
+    #photo-modal.show{opacity:1;visibility:visible}
+    .modal-card{
+      display:flex;gap:48px;max-width:800px;
+      transform:translateY(20px);transition:transform 0.5s;
+    }
+    #photo-modal.show .modal-card{transform:translateY(0)}
+    .modal-img{
+      width:320px;height:400px;
+      border-radius:8px;overflow:hidden;flex-shrink:0;
+      box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal-img img{width:100%;height:100%;object-fit:cover}
+    .modal-info{display:flex;flex-direction:column;justify-content:center}
+    .modal-info h3{
+      font-family:'Noto Serif SC',serif;
+      font-size:28px;font-weight:300;letter-spacing:4px;
+      color:rgba(255,255,255,0.9);
+    }
+    .modal-info .modal-en{
+      font-size:12px;letter-spacing:4px;color:rgba(255,255,255,0.3);
+      text-transform:uppercase;margin-top:8px;
+    }
+    .modal-info p{
+      font-size:14px;color:rgba(255,255,255,0.5);line-height:1.8;
+      margin-top:20px;max-width:300px;letter-spacing:1px;
+    }
+    .modal-info .modal-back{
+      margin-top:32px;font-size:10px;letter-spacing:4px;
+      color:rgba(255,255,255,0.3);text-transform:uppercase;
+      cursor:pointer;pointer-events:auto;
+      border:1px solid rgba(255,255,255,0.1);padding:10px 20px;
+      background:transparent;transition:all 0.3s;
+    }
+    .modal-info .modal-back:hover{
+      border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.6);
+    }
+  </style>
+  <script type="module" crossorigin src="/blossom-web/assets/index-DzYaLwq7.js"></script>
+</head>
+<body>
+  <!-- Loading -->
+  <div id="loader">
+    <div class="l-title">ETERNAL BLOSSOMING</div>
+    <div class="l-bar"><div class="l-fill" id="l-fill"></div></div>
+    <div class="l-pct" id="l-pct">0%</div>
+  </div>
+
+  <!-- 3D Canvas -->
+  <canvas id="three-canvas"></canvas>
+
+  <!-- Scroll Container (height defines scroll length) -->
+  <div id="scroll-container"></div>
+
+  <!-- Fixed UI -->
+  <div class="ui-layer brand">
+    <div class="logo">WXY</div>
+    <div class="sub">ETERNAL BLOSSOMING · 365 DAY</div>
+  </div>
+
+  <div class="ui-layer status">
+    <div class="phase" id="ui-phase">ARRIVAL</div>
+    <div class="progress" id="ui-progress">0%</div>
+  </div>
+
+  <div class="ui-layer info-bl">
+    <div class="date">PHYSICAL PICTURES · 10.22.23</div>
+    <div class="desc" id="ui-desc"></div>
+  </div>
+
+  <div class="ui-layer info-br">
+    <div class="hint">SCROLL TO EXPLORE</div>
+  </div>
+
+  <!-- Center text -->
+  <div class="center-text" id="center-text">
+    <div class="ct-main" id="ct-main"></div>
+    <div class="ct-sub" id="ct-sub"></div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="scroll-hint" id="scroll-hint">
+    <div class="sh-text">SCROLL TO SHAPE THE BLOSSOMING</div>
+    <div class="sh-arrow"></div>
+  </div>
+
+  <!-- Photo Modal -->
+  <div id="photo-modal">
+    <div class="modal-card">
+      <div class="modal-img"><img id="modal-img" src="" /></div>
+      <div class="modal-info">
+        <h3 id="modal-title"></h3>
+        <div class="modal-en" id="modal-en"></div>
+        <p id="modal-desc"></p>
+        <button class="modal-back" id="modal-back">RETURN TO OUR FLOWER SEA</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
